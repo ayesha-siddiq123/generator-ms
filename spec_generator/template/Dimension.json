@@ -1,0 +1,29 @@
+{
+    "ingestion_type": "dimension",
+    "dimension_name": <DimensionName>,
+    "input": {
+        "type": "object",
+        "properties": {
+            "dimension_name": {
+                "type": "string"
+            },
+            "dimension": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": <DimensionObject>,
+                    "required":  <DimensionList>
+                }
+            },
+           "target_table":
+            {
+                "type": "object",
+                    "properties": <TargetTable>
+            }
+      },
+        "required": [
+            "dimension_name",
+            "dimension"
+        ]
+    }
+}

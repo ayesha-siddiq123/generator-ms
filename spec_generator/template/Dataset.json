@@ -1,0 +1,60 @@
+{
+	"ingestion_type": "dataset",
+	"dataset_name": "school_details",
+	"input": {
+		"type": "object",
+		"properties": {
+			"dataset_name": {
+				"type": "string"
+			},
+			"dataset": {
+				"type": "object",
+				"properties": {
+					"items": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties":  <DatasetObject>,
+							"required": <DatasetList>
+						}
+					},
+					"aggregate": {
+						"type": "object",
+						"properties": {
+							"target_table": {
+								"type": "object",
+								"properties": <TargetTable>
+							 }
+							},
+						     "numerator_col":{
+                                  "type": "object",
+                                  "properties":<NumeratorCol>
+                              },
+                            "denominator_col":{
+                                  "type": "object",
+                                  "properties":<DenominatorCol>
+                              },
+							"update_cols": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties":  <UpdateCol>
+								}
+							},
+						"required": [
+							"target_table",
+							"update_col"
+						]
+					}
+				},
+				"required": [
+					"items"
+				]
+			}
+		},
+		"required": [
+			"dataset_name",
+			"dataset"
+		]
+	}
+}

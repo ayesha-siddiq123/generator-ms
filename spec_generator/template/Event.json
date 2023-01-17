@@ -1,0 +1,24 @@
+{
+    "ingestion_type": "event",
+    "event_name": <EventName>,
+    "input": {
+        "type": "object",
+        "properties": {
+            "event_name": {
+                "type": "string"
+            },
+            "event": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties":  <EventObject>,
+                    "required":  <EventList>
+                }
+            }
+        },
+        "required": [
+            "event_name",
+            "event"
+        ]
+    }
+}

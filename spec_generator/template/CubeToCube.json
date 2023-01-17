@@ -1,0 +1,116 @@
+{
+    "ingestion_type": "dataset",
+    "dataset_name": "<DatasetName>",
+    "input": {
+        "type": "object",
+        "properties": {
+            "dataset_name": {
+                "type": "string"
+            },
+            "dimensions": {
+                "type": "object",
+                "properties": {
+                    "table": {
+                        "type": "object",
+                        "properties": <DimensionTable>
+                    },
+                    "column": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": <DimensionCol>
+                        }
+                    },
+                    "merge_on_col": {
+                        "type": "object",
+                        "properties": <MergeOnCol>
+                    }
+                }
+            },
+            "dataset": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": <DatasetObject>,
+                            "required": <DatasetList>
+                        }
+                    },
+                    "group_by": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": <GroupByObject>,
+                            "required": <GroupByList>
+                        }
+                    },
+                    "aggregate": {
+                        "type": "object",
+                        "properties": {
+                            "function": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": <AggFunction>
+                                }
+                            },
+                            "target_table": {
+                                "type": "object",
+                                "properties": <TargetTable>
+                            },
+                              "numerator_col":{
+                                  "type": "object",
+                                  "properties":<NumeratorCol>
+                              },
+                            "denominator_col":{
+                                  "type": "object",
+                                  "properties":<DenominatorCol>
+                              },
+                            "update_cols": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": <UpdateCol>
+                                }
+                            },
+                            "columns": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "table": {
+                                            "type": "object",
+                                            "properties": <AggColTable>
+                                        },
+                                        "column": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": <AggCol>
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "required": [
+                            "function",
+                            "target_table",
+                            "update_col",
+                            "columns"
+                        ]
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            }
+        },
+        "required": [
+            "dataset_name",
+            "dataset"
+        ]
+    }
+}

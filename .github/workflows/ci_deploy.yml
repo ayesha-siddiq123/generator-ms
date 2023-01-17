@@ -1,0 +1,22 @@
+name: Continuous Integration
+on:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - dev
+      - staging      
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Initialize Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{matrix.python-version}}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  

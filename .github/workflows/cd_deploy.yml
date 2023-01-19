@@ -10,6 +10,11 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
+
+    - name: adding aws credentials
+      run: sed -i 's|"cqube_db_host"|"${{secrets.DB_HOST}}"|g;s|"cqube_db_port"|"${{secrets.DB_PORT}}"|g;s|"cqube_database"|"${{secrets.DATABASE}}"|g;s|"cqube_db_user"|"${{secrets.DB_USER}}"|g;s|"cqube_db_password"|"${{secrets.DB_PASSWORD}}"|g' config.ini
+      shell: bash
+
     - uses: actions/checkout@v3
     - name: Docker Login
       uses: docker/login-action@v2

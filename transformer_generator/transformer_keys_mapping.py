@@ -6,7 +6,6 @@ import pandas as pd
 import psycopg2 as pg
 
 configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/transformers/config.ini"
-print(configuartion_path)
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 
@@ -15,7 +14,6 @@ host = config['CREDs']['db_host']
 user = config['CREDs']['db_user']
 password = config['CREDs']['db_password']
 database = config['CREDs']['database']
-
 CeatedTransformersList = []
 
 def KeysMapping(InputKeys, Template, Transformer, Response):
@@ -54,12 +52,11 @@ def dimension_data_insert(request, Response):
         DimensionName = TemplateDatasetMapping['dimension_name']
         Transformer = DimensionName + '.py'
         TransformerType = TemplateDatasetMapping['transformer_template']
-        Template = TranformerType + '.py'
+        Template = TransformerType + '.py'
         con = pg.connect(database=database, user=user, password=password, host=host, port=port)
         cur = con.cursor()
-        DatasetQueryString = '''SELECT dimension_data FROM spec.dimension WHERE dimension_name='{}';'''.format(
-            DimensionName)
-        cur.execute(DatasetQueryString)
+        QueryString = '''SELECT dimension_data FROM spec.dimension WHERE dimension_name='{}';'''.format(DimensionName)
+        cur.execute(QueryString)
         con.commit()
         if cur.rowcount == 1:
             for records in cur.fetchall():
@@ -77,7 +74,7 @@ def dimension_data_insert(request, Response):
                     if len(string_col_list) != 0:
                             DatasetCasting.append('df_data.update(df_data[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
 
-                    if TransformerType == 'Dataset':
+                    if TransformerType == 'Dataset_Dimension':
                         InputKeys.update({'ValueCols':DimensionArray, "KeyFile": json.dumps(Dimension + '.csv'),
                                               'DatasetCasting': ','.join(DatasetCasting),
                                               'TargetTable':','.join(TargetTable),

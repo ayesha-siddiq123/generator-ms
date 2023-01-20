@@ -1,2 +1,7 @@
-template,dimension_name
-Dataset,school_details
+transformer_template,dimension_name
+Dataset_Dimension,dimension_master
+Dataset_Dimension,dimension_school
+Dataset_Dimension,dimension_cluster
+Dataset_Dimension,dimension_block
+Dataset_Dimension,dimension_district
+Dataset_Dimension,dimension_state

@@ -14,7 +14,7 @@ port = config['CREDs']['db_port']
 host = config['CREDs']['db_host']
 user = config['CREDs']['db_user']
 password = config['CREDs']['db_password']
-database = config['CREDs']['Database']
+database = config['CREDs']['database']
 
 
 engine='postgresql://'+user+':%s@'+host+':'+port+'/'+database

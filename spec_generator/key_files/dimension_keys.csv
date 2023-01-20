@@ -1,3 +1,7 @@
 program,dimension_name,dimension_col,dimension_datatype,target_table
-SAC,school_details,"grade,school_id,school_name,school_type,school_category,cluster_id,cluster_name,block_id,block_name,district_id,district_name,state_id,state_name","number,number,string,string,string,number,string,number,string,number,string,number,string", ingestion.school_details
-School_Statistics,school_details,"grade,school_id,school_name,school_type,school_category,cluster_id,cluster_name,block_id,block_name,district_id,district_name,state_id,state_name","number,number,string,string,string,number,string,number,string,number,string,number,string", ingestion.school_details
+SAC,dimension_master,"school_id,cluster_id,block_id,district_id,state_id","number,number,number,number,number",ingestion.dimension_master
+SAC,dimension_school,"grade,school_id,school_name,school_type,school_category,lattitude,longitude","number,number,string,string,string,string,string",ingestion.dimension_school
+SAC,dimension_cluster,"cluster_id,cluster_name,lattitude,longitude","number,number,string,string",ingestion.dimension_cluster
+SAC,dimension_block,"block_id,block_name,lattitude,longitude","number,number,string,string",ingestion.dimension_block
+SAC,dimension_district,"district_id,district_name,lattitude,longitude","number,number,string,string",ingestion.dimension_district
+SAC,dimension_state,"state_id,state_name,lattitude,longitude","number,number,string,string",ingestion.dimension_state

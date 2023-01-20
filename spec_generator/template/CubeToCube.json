@@ -1,6 +1,6 @@
 {
     "ingestion_type": "dataset",
-    "dataset_name": "<DatasetName>",
+    "dataset_name": <DatasetName>,
     "input": {
         "type": "object",
         "properties": {
@@ -10,21 +10,9 @@
             "dimensions": {
                 "type": "object",
                 "properties": {
-                    "table": {
-                        "type": "object",
-                        "properties": <DimensionTable>
-                    },
-                    "column": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": <DimensionCol>
-                        }
-                    },
-                    "merge_on_col": {
-                        "type": "object",
-                        "properties": <MergeOnCol>
-                    }
+                    "table":  <DimensionTable>,
+                    "column": <DimensionCol>,
+                    "merge_on_col": <MergeOnCol>
                 }
             },
             "dataset": {
@@ -35,82 +23,45 @@
                         "items": {
                             "type": "object",
                             "properties": <DatasetObject>,
-                            "required": <DatasetList>
+                            "required":  <DatasetList>
                         }
                     },
-                    "group_by": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": <GroupByObject>,
-                            "required": <GroupByList>
-                        }
-                    },
+                    "group_by": <GroupByCol>,
                     "aggregate": {
                         "type": "object",
                         "properties": {
-                            "function": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": <AggFunction>
-                                }
-                            },
-                            "target_table": {
-                                "type": "object",
-                                "properties": <TargetTable>
-                            },
-                              "numerator_col":{
-                                  "type": "object",
-                                  "properties":<NumeratorCol>
-                              },
-                            "denominator_col":{
-                                  "type": "object",
-                                  "properties":<DenominatorCol>
-                              },
-                            "update_cols": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": <UpdateCol>
-                                }
-                            },
+                            "function": <AggFunction>,
+                            "target_table": <TargetTable>,
+                            "numerator_col": <NumeratorCol>,
+                            "denominator_col": <DenominatorCol>,
+                            "update_cols":  <UpdateCol>,
                             "columns": {
                                 "type": "array",
                                 "items": {
                                     "type": "object",
                                     "properties": {
-                                        "table": {
-                                            "type": "object",
-                                            "properties": <AggColTable>
-                                        },
-                                        "column": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": <AggCol>
-                                            }
-                                        }
+                                        "table": <AggColTable>,
+                                        "column":  <AggCol>
                                     }
                                 }
-                            }
-                        },
-                        "required": [
-                            "function",
-                            "target_table",
-                            "update_col",
-                            "columns"
-                        ]
-                    }
-                },
-                "required": [
-                    "items"
-                ]
-            }
-        },
-        "required": [
-            "dataset_name",
-            "dataset"
-        ]
+                            },
+                            "required": [
+                                "function",
+                                "target_table",
+                                "update_cols",
+                                "columns"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "items"
+                    ]
+                }
+            },
+            "required": [
+                "dataset_name",
+                "dataset"
+            ]
+        }
     }
 }

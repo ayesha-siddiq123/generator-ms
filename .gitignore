@@ -102,3 +102,8 @@ dist
 
 # TernJS port file
 .tern-port
+
+# pycach local file
+python/spec_generator/__pycache__/*
+python/transformer_generator/__pycache__/*
+python/transformer_generator/transformers/config.ini

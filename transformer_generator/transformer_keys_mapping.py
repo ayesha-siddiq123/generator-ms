@@ -10,14 +10,13 @@ print(configuartion_path)
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 
-port = config['CREDs']['port']
-host = config['CREDs']['host']
-user = config['CREDs']['user']
-password = config['CREDs']['password']
-database = config['CREDs']['database']
+port = config['CREDs']['db_port']
+host = config['CREDs']['db_host']
+user = config['CREDs']['db_user']
+password = config['CREDs']['db_password']
+database = config['CREDs']['Database']
 
 CeatedTransformersList = []
-
 
 def KeysMapping(InputKeys, Template, Transformer, Response):
     if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/transformers/' + Transformer):
@@ -54,7 +53,7 @@ def dimension_data_insert(request, Response):
         TemplateDatasetMapping = (dict(zip(Dimensionkeys, value)))
         DimensionName = TemplateDatasetMapping['dimension_name']
         Transformer = DimensionName + '.py'
-        TranformerType = TemplateDatasetMapping['template']
+        TransformerType = TemplateDatasetMapping['transformer_template']
         Template = TranformerType + '.py'
         con = pg.connect(database=database, user=user, password=password, host=host, port=port)
         cur = con.cursor()
@@ -76,9 +75,9 @@ def dimension_data_insert(request, Response):
                         if (df[col] == "string").item():
                             string_col_list.append(cols)
                     if len(string_col_list) != 0:
-                            DatasetCasting.append('df_dataset.update(df_dataset[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
+                            DatasetCasting.append('df_data.update(df_data[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
 
-                    if TranformerType == 'Dataset':
+                    if TransformerType == 'Dataset':
                         InputKeys.update({'ValueCols':DimensionArray, "KeyFile": json.dumps(Dimension + '.csv'),
                                               'DatasetCasting': ','.join(DatasetCasting),
                                               'TargetTable':','.join(TargetTable),
@@ -99,6 +98,7 @@ def collect_keys(request, Response):
     Program = request.json['program']
     EventName = request.json['ingestion_name']
     Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + KeyFile
+    print(Path,'::::::::::::::::::::::::::::')
     ####### Reading Transformer Mapping Key Files ################
     try:
         df = pd.read_csv(Path)
@@ -111,9 +111,11 @@ def collect_keys(request, Response):
         for value in DatasetValues:
             TemplateDatasetMapping = (dict(zip(Datasetkeys, value)))
             DatasetName = TemplateDatasetMapping['dataset_name']
+            global Transformer
             Transformer = DatasetName + '.py'
-            TranformerType = TemplateDatasetMapping['template']
-            Template = TranformerType + '.py'
+            TransformerType = TemplateDatasetMapping['transformer_template']
+            global Template
+            Template = TransformerType + '.py'
             con = pg.connect(database=database, user=user, password=password, host=host, port=port)
             cur = con.cursor()
             EventQueryString = ''' SELECT event_data FROM spec.event WHERE event_name='{}';'''.format(EventName)
@@ -127,33 +129,24 @@ def collect_keys(request, Response):
                 if cur.rowcount == 1:
                     for records in cur.fetchall():
                         for record in list(records):
+                            print(record)
                             Dataset = record['input']['properties']['dataset']['properties']
                             DatasetObject = list(Dataset['items']['items']['properties'].keys())
-                            DatasetArray=list(Dataset['items']['items']['required'])
+                            DatasetArray=Dataset['items']['items']['required']
                             Dimensions = record['input']['properties']['dimensions']['properties']
-                            ReplaceFormat = []
-                            IncrementFormat = []
-                            PercentageIncrement = []
-                            UpdateCols = []
-                            DatasetCasting = []
-                            EventCasting = []
-                            string_col_list = []
-                            NumeratorCol = \
-                                list(Dataset['aggregate']['properties']['numerator_col']['properties'].keys())[0]
-                            DenominatorCol = \
-                                list(Dataset['aggregate']['properties']['denominator_col']['properties'].keys())[0]
-                            fun = list(Dataset['aggregate']['properties']['function']['items']['properties'].keys())
+                            NumeratorCol = Dataset['aggregate']['properties']['numerator_col']
+                            DenominatorCol = Dataset['aggregate']['properties']['denominator_col']
+                            fun = Dataset['aggregate']['properties']['function']
                             UpdateColList = []
                             df = pd.json_normalize(Dataset['items']['items']['properties'])
+                            DatasetCasting = []
+                            string_col_list = []
                             for cols in DatasetObject:
                                 col = cols + '.type'
                                 if (df[col] == "string").item():
                                     string_col_list.append(cols)
                             if len(string_col_list) != 0:
-                                DatasetCasting.append('df_dataset.update(df_dataset[' + json.dumps(
-                                    string_col_list) + '].applymap("\'{}\'".format))')
-                                EventCasting.append('df_events.update(df_events[' + json.dumps(
-                                    string_col_list) + '].applymap("\'{}\'".format))')
+                                DatasetCasting.append('df_agg.update(df_agg[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
                             if not (NumeratorCol.lower()).startswith(('sum_', 'count_')):
                                 UpdateColList.append(fun[0] + '_' + NumeratorCol)
                             else:
@@ -164,7 +157,12 @@ def collect_keys(request, Response):
                             else:
                                 UpdateColList.append(DenominatorCol)
                                 UpdateColList.append("percentage")
-                            for i in UpdateColList:
+                            UpdateCols = []
+                            ReplaceFormat = []
+                            IncrementFormat = []
+                            PercentageIncrement = []
+                            UpdateColArray=Dataset['aggregate']['properties']['update_cols']
+                            for i in UpdateColArray:
                                 if i == 'percentage':
                                     ReplaceFormat.append(i + '=EXCLUDED.' + i)
                                 else:
@@ -172,68 +170,46 @@ def collect_keys(request, Response):
                                     UpdateCols.append('row["' + i + '"]')
                                     IncrementFormat.append(i + '=main_table.' + i + '::numeric+{}::numeric')
                                     PercentageIncrement.append('main_table.' + i + '::numeric+{}::numeric')
-                            # col = list(Dataset['aggregate']['properties']['columns']['items']['properties']['column']['items']['properties'].keys())
-                            agg_col=[NumeratorCol,DenominatorCol]
+                            agg_col =Dataset['aggregate']['properties']['columns']['items']['properties']['column']
                             AggCols = (dict(zip(agg_col, (fun * len(agg_col)))))
-                            InputKeys.update({'AWSKey': '{}', 'AWSSecretKey': '{}', 'BucketName': '{}', 'ObjKey': '{}',
-                                              'Values': '{}', 'EventCasting': ','.join(EventCasting),
-                                              'DatasetCasting': ','.join(DatasetCasting), 'ValueCols': DatasetArray,
-                                              'GroupBy': list(Dataset['group_by']['items']['properties'].keys()),
-                                              'AggCols': AggCols,
-                                              'DimensionTable': list(Dimensions['table']['properties'].keys())[0],
-                                              'DimensionCols': ','.join(
-                                                  list(Dimensions['column']['items']['properties'].keys())),
-                                              'MergeOnCol': list(Dimensions['merge_on_col']['properties'].keys()),
-                                              'TargetTable': list(Dataset['aggregate']['properties']['target_table'][
-                                                                      'properties'].keys())[0],
-                                              'InputCols': ','.join(DatasetArray),
-                                              'ConflictCols': ','.join(
-                                                  list(Dataset['group_by']['items']['properties'].keys())),
-                                              'IncrementFormat': ','.join(IncrementFormat),
-                                              'ReplaceFormat': ','.join(ReplaceFormat),
-                                              'UpdateCols': ','.join(UpdateCols * 2),
-                                              'UpdateCol': ','.join(UpdateCols),
-                                              "KeyFile": json.dumps(EventName + '.csv')})
+                            InputKeys.update({'Values': '{}','DatasetCasting': ','.join(DatasetCasting), 'ValueCols': DatasetArray,
+                                'GroupBy': Dataset['group_by'],'AggCols': AggCols,'DimensionTable':Dimensions['table'],
+                                'DimensionCols': ','.join(Dimensions['column']),'MergeOnCol': Dimensions['merge_on_col'],
+                                 'TargetTable': Dataset['aggregate']['properties']['target_table'],
+                                'InputCols': ','.join(DatasetArray),'ConflictCols': ','.join(Dataset['group_by']),
+                                'IncrementFormat': ','.join(IncrementFormat),'ReplaceFormat': ','.join(ReplaceFormat),
+                                'UpdateCols': ','.join(UpdateCols * 2),'UpdateCol': ','.join(UpdateCols),
+                                "KeyFile": json.dumps(EventName + '.csv')})
                             print(Template, '::::::::::::Template::::::::::::')
-                            if TranformerType in ['EventToCube', 'EventToCubeIncrement']:
+                            if TransformerType in ['EventToCube', 'EventToCubeIncrement']:
                                 InputKeys.update(InputKeys)
-                            elif TranformerType in ['EventToCubePer', 'EventToCubePerIncrement']:
-                                InputKeys.update({'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
-                                                  'QueryDenominator': PercentageIncrement[1],
-                                                  'QueryNumerator': PercentageIncrement[0]})
-                            elif TranformerType in ['CubeToCube', 'CubeToCubeIncrement']:
-                                table = list(
-                                    Dataset['aggregate']['properties']['columns']['items']['properties']['table'][
-                                        'properties'].keys())
-                                InputKeys.update({'Table': table[0]})
-                            elif TranformerType in ['CubeToCubePer', 'CubeToCubePerIncrement', 'E&CToCubePerIncrement',
+                            elif TransformerType in ['EventToCubePer', 'EventToCubePerIncrement']:
+                                InputKeys.update({'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,'AggColOne':agg_col[0],'AggColTwo':agg_col[1],
+                                                  'QueryDenominator': PercentageIncrement[1],'QueryNumerator': PercentageIncrement[0]})
+                            elif TransformerType in ['CubeToCube', 'CubeToCubeIncrement']:
+                                table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
+                                InputKeys.update({'Table': table})
+                            elif TransformerType in ['CubeToCubePer', 'CubeToCubePerIncrement', 'E&CToCubePerIncrement',
                                                     'E&CToCubePer']:
-                                table = list(
-                                    Dataset['aggregate']['properties']['columns']['items']['properties']['table'][
-                                        'properties'].keys())
+                                table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
                                 InputKeys.update(
-                                    {'Table': table[0], 'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
-                                     'QueryDenominator': PercentageIncrement[1],
+                                    {'Table': table,'QueryDenominator': PercentageIncrement[1],
                                      'QueryNumerator': PercentageIncrement[0]})
-                            elif TranformerType in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement']:
-                                table = list(
-                                    Dataset['aggregate']['properties']['columns']['items']['properties']['table'][
-                                        'properties'].keys())
-                                filter = Dataset['aggregate']['properties']['filters']['items']['properties']
+                            elif TransformerType in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement']:
+                                table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
+                                filter = Dataset['aggregate']['properties']['filters']['properties']
                                 InputKeys.update(
-                                    {'Table': table[0], 'FilterCol': list(filter['column']['properties'].keys()),
-                                     'FilterType': list(filter['filter_type']['properties'].keys())[0],
-                                     'Filter': list(filter['filter']['properties'].keys())[0],
-                                     'DimensionTable': list(Dimensions['table']['properties'].keys())[0],
+                                    {'Table': table, 'FilterCol': list(filter['filter_col']),
+                                     'FilterType':filter['filter_type'],'Filter':filter['filter'],
                                      'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
                                      'QueryDenominator': PercentageIncrement[1],
                                      'QueryNumerator': PercentageIncrement[0]})
                             else:
                                 return Response(json.dumps(
-                                    {"Message": "Transformer type is not correct", "TransformerType": TranformerType,
+                                    {"Message": "Transformer type is not correct", "TransformerType": TransformerType,
                                      "Dataset": DatasetName}))
                             print(Transformer, ':::::::::::Transformer:::::::::::::::')
-                            KeysMapping(InputKeys, Template, Program + '_' + Transformer, Response)
+                            KeysMapping(InputKeys, Template,Transformer, Response)
                 else:
                     print('ERROR : No dataset found')
                     return Response(json.dumps({"Message": "No dataset found " + DatasetName}))
@@ -248,4 +224,4 @@ def collect_keys(request, Response):
         print(error)
         return Response(
             json.dumps({"Message": "Transformer not created ", "transformerFiles": Transformer, "code": 400}))
-    return KeysMapping(InputKeys, Template, Program + '_' + Transformer, Response)
+    return KeysMapping(InputKeys, Template, Transformer, Response)

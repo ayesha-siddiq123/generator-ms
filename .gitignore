@@ -104,6 +104,6 @@ dist
 .tern-port
 
 # pycach local file
-python/spec_generator/__pycache__/*
-python/transformer_generator/__pycache__/*
-python/transformer_generator/transformers/config.ini
+spec_generator/__pycache__/*
+transformer_generator/__pycache__/*
+transformer_generator/transformers/config.ini

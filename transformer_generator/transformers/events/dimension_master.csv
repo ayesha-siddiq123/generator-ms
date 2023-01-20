@@ -1,4 +1,4 @@
-school_id,cluster_id,block_id,district_id,state_id,lattitude,longitude
+school_id,cluster_id,block_id,district_id,state_id,latitude,longitude
 1000000007,100000004,10007,102,9,15.643,75.153
 1000000001,100000006,10008,105,7,15.81,75.545
 1000000007,100000001,10005,110,1,15.711,75.315

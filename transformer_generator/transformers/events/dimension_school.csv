@@ -1,4 +1,4 @@
-grade,school_id,school_name,school_type,school_category,lattitude,longitude
+grade,school_id,school_name,school_type,school_category,latitude,longitude
 8,1000000007,school_1000000007,urban,upper_primary,15.643,75.153
 12,1000000001,school_1000000001,rural,senior_secondary,15.81,75.545
 12,1000000007,school_1000000007,rural,senior_secondary,15.711,75.315

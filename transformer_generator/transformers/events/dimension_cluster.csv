@@ -1,4 +1,4 @@
-cluster_id,cluster_name,lattitude,longitude
+cluster_id,cluster_name,latitude,longitude
 100000004,cluster_100000004,15.643,75.153
 100000006,cluster_100000006,15.81,75.545
 100000001,cluster_100000001,15.711,75.315

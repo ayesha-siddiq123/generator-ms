@@ -44,12 +44,20 @@
                                     }
                                 }
                             },
+                            "filters": {
+                                "type": "object",
+                                "properties": {
+                                    "filter_col": <FilterCol>,
+                                    "filter_type": <FilterType>,
+                                    "filter": <Filter>
+                                }
+                            },
                             "required": [
                                 "function",
                                 "target_table",
                                 "update_cols",
-                                "columns"
-
+                                "columns",
+                                "filters"
                             ]
                         }
                     },

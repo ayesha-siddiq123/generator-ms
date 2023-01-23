@@ -27,10 +27,10 @@ def aggTransformer(valueCols={ValueCols}):
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
     event_dimension_merge = df_events.merge(df_dimension, on=['{MergeOnCol}'], how='inner')
     df_agg = event_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})
-    df_agg['{RenameColOne}'] = df_agg['{AggColOne}']
-    df_agg['{RenameColTwo}'] = df_agg['{AggColTwo}']
     {DatasetCasting}
-    df_snap = df_agg[valueCols]
+    col_list = df_agg.columns.to_list()
+    df_snap = df_agg[col_list]
+    df_snap.columns = valueCols
     try:
          for index,row in df_snap.iterrows():
             values = []

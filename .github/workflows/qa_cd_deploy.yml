@@ -12,8 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: adding db creds
-      run: sed -i 's|"postgres_host"|"${{secrets.DB_HOST}}"|g;s|"db_port"|"${{secrets.DB_PORT}}"|g;s|"database"|"${{secrets.DATABASE}}"|g;s|"qube_user"|"${{secrets.DB_USER}}"|g;s|"tibil@123"|"${{secrets.DB_PASSWORD}}"|g' config.ini
-      shell: bash  
+      run: sed -i 's/database_host/${{secrets.DB_HOST}}/g;s/database_port/${{secrets.DB_PORT}}/g;s/database_name/${{secrets.DATABASE}}/g;s/database_user/${{secrets.DB_USER}}/g;s/database_password/${{secrets.DB_PASSWORD}}/g' config.ini
+      shell: bash 
+
     - name: Docker Login
       uses: docker/login-action@v2
       with:
@@ -41,7 +42,7 @@ jobs:
         script: |
           docker login
           docker pull tibildocker/generator_ms
-          docker stop cqube_v5_generator_app_1 || true
-          docker rm cqube_v5_generator_app_1 || true
-          docker rmi tibildocker/generator_ms:qa || true
-          docker run -d --name cqube_v5_generator_app_1 -p 3003:3003 --network cqube_v5_cqube_net tibildocker/generator_ms:qa
+          docker stop ansible_generator_app_1 || true
+          docker rm ansible_generator_app_1 || true
+          docker rmi tibildocker/generator_ms:dev || true
+          docker run -d --name ansible_generator_app_1 -p 3003:3003 --network ansible_cqube_net tibildocker/generator_ms:qa

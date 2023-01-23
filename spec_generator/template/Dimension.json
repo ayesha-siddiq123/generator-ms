@@ -9,6 +9,7 @@
             },
             "dimension": {
                 "type": "array",
+              "shouldnotnull": true,
                 "items": {
                     "type": "object",
                     "properties": <DimensionObject>,

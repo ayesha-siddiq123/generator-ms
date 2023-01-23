@@ -196,7 +196,7 @@ def collect_keys(request, Response):
                                 table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
                                 filter = Dataset['aggregate']['properties']['filters']['properties']
                                 InputKeys.update(
-                                    {'Table': table, 'FilterCol': list(filter['filter_col']),
+                                    {'Table': table, 'FilterCol': filter['filter_col'],
                                      'FilterType':filter['filter_type'],'Filter':filter['filter'],
                                      'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
                                      'QueryDenominator': PercentageIncrement[1],

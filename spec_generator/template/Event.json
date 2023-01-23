@@ -9,6 +9,7 @@
             },
             "event": {
                 "type": "array",
+                "shouldnotnull": true,
                 "items": {
                     "type": "object",
                     "properties":  <EventObject>,

@@ -9,7 +9,6 @@ todays_date = date.today()
 
 CreatedSpecList = []
 
-
 def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
     SpecTemplate = SpecTemplate + '.json'
     SpecFile = SpecFile + '.json'

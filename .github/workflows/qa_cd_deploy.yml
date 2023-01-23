@@ -3,7 +3,7 @@ on:
   pull_request_target:
     types:
       - closed
-    branches: [dev]
+    branches: [staging]
 
 jobs:
   if_merged:
@@ -27,7 +27,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: tibildocker/generator_ms:dev
+        tags: tibildocker/generator_ms:qa
 
     - name: Docker pull image and deploy from hub
       env:
@@ -35,14 +35,14 @@ jobs:
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       uses: appleboy/ssh-action@master
       with:
-        HOST: ${{ secrets.DEV_HOST }}
+        HOST: ${{ secrets.QA_HOST }}
         USERNAME: ${{ secrets.USERNAME }}
         KEY: ${{ secrets.KEY }}
         PORT: '22'
         script: |
           docker login
           docker pull tibildocker/generator_ms
-          docker stop cqube_v5_generator_app_1 || true
-          docker rm cqube_v5_generator_app_1 || true
+          docker stop ansible_generator_app_1 || true
+          docker rm ansible_generator_app_1 || true
           docker rmi tibildocker/generator_ms:dev || true
-          docker run -d --name cqube_v5_generator_app_1 -p 3003:3003 --network cqube_v5_cqube_net tibildocker/generator_ms:dev
+          docker run -d --name ansible_generator_app_1 -p 3003:3003 --network ansible_cqube_net tibildocker/generator_ms:qa

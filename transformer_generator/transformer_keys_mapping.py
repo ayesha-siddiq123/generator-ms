@@ -31,7 +31,6 @@ def KeysMapping(InputKeys, Template, Transformer, Response):
             with open(os.path.dirname(os.path.abspath(__file__)) + '/transformers/' + Transformer, 'a') as fs:
                 fs.write(ToreplaceString)
         CeatedTransformersList.append({"filename": Transformer})
-        return Response(json.dumps({"Message": "Transformer created successfully", "TransformerFiles": CeatedTransformersList, "code": 200}))
     else:
         print('ERROR : InputKey is Empty')
         return Response(json.dumps({"Message": "InputKey is empty"}))
@@ -41,52 +40,58 @@ def dimension_data_insert(request, Response):
     Dimension = request.json['ingestion_name']
     KeyFile = request.json['key_file']
     Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + KeyFile
-    df = pd.read_csv(Path)
-    if len(df) == 0:
-        return Response(json.dumps({"Message": KeyFile + " is empty"}))
-    df = df.loc[df['dimension_name'] == Dimension]
-    Dimensionkeys = df.keys().tolist()
-    DimensionValues = df.values.tolist()
-    for value in DimensionValues:
-        TemplateDatasetMapping = (dict(zip(Dimensionkeys, value)))
-        DimensionName = TemplateDatasetMapping['dimension_name']
-        Transformer = DimensionName + '.py'
-        TransformerType = TemplateDatasetMapping['transformer_template']
-        Template = TransformerType + '.py'
-        con = pg.connect(database=database, user=user, password=password, host=host, port=port)
-        cur = con.cursor()
-        QueryString = '''SELECT dimension_data FROM spec.dimension WHERE dimension_name='{}';'''.format(DimensionName)
-        cur.execute(QueryString)
-        con.commit()
-        if cur.rowcount == 1:
-            for records in cur.fetchall():
-                for record in list(records):
-                    DimensionObject = list(record['input']['properties']['dimension']['items']['properties'].keys())
-                    DimensionArray=list(record['input']['properties']['dimension']['items']['required'])
-                    TargetTable = list(record['input']['properties']['target_table']['properties'].keys())
-                    string_col_list = []
-                    DatasetCasting = []
-                    df = pd.json_normalize(record['input']['properties']['dimension']['items']['properties'])
-                    for cols in DimensionObject:
-                        col = cols + '.type'
-                        if (df[col] == "string").item():
-                            string_col_list.append(cols)
-                    if len(string_col_list) != 0:
-                            DatasetCasting.append('df_data.update(df_data[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
+    try:
+        df = pd.read_csv(Path)
+        if len(df) == 0:
+            return Response(json.dumps({"Message": KeyFile + " is empty"}))
+        df = df.loc[df['dimension_name'] == Dimension]
+        Dimensionkeys = df.keys().tolist()
+        DimensionValues = df.values.tolist()
+        for value in DimensionValues:
+            TemplateDatasetMapping = (dict(zip(Dimensionkeys, value)))
+            DimensionName = TemplateDatasetMapping['dimension_name']
+            Transformer = DimensionName + '.py'
+            TransformerType = TemplateDatasetMapping['transformer_template']
+            Template = TransformerType + '.py'
+            con = pg.connect(database=database, user=user, password=password, host=host, port=port)
+            cur = con.cursor()
+            QueryString = '''SELECT dimension_data FROM spec.dimension WHERE dimension_name='{}';'''.format(DimensionName)
+            cur.execute(QueryString)
+            con.commit()
+            if cur.rowcount == 1:
+                for records in cur.fetchall():
+                    for record in list(records):
+                        DimensionObject = list(record['input']['properties']['dimension']['items']['properties'].keys())
+                        DimensionArray=list(record['input']['properties']['dimension']['items']['required'])
+                        TargetTable = list(record['input']['properties']['target_table']['properties'].keys())
+                        string_col_list = []
+                        DatasetCasting = []
+                        df = pd.json_normalize(record['input']['properties']['dimension']['items']['properties'])
+                        for cols in DimensionObject:
+                            col = cols + '.type'
+                            if (df[col] == "string").item():
+                                string_col_list.append(cols)
+                        if len(string_col_list) != 0:
+                                DatasetCasting.append('df_data.update(df_data[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
 
-                    if TransformerType == 'Dataset_Dimension':
-                        InputKeys.update({'ValueCols':DimensionArray, "KeyFile": json.dumps(Dimension + '.csv'),
-                                              'DatasetCasting': ','.join(DatasetCasting),
-                                              'TargetTable':','.join(TargetTable),
-                                              'InputCols': ','.join(DimensionArray),
-                                              'Values': '{}'})
-                    else:
-                        return Response(json.dumps({"Message": "Transformer type is not correct", "TransformerType": TranformerType,
-                                 "Dataset": DimensionName}))
-                        print(Transformer,':transformer:::::::::::')
-        else:
-            return Response(json.dumps({"Message": "No dimension found " + Dimension}))
-    return KeysMapping(InputKeys, Template,Transformer, Response)
+                        if TransformerType == 'Dataset_Dimension':
+                            InputKeys.update({'ValueCols':DimensionArray, "KeyFile": json.dumps(Dimension + '.csv'),
+                                                  'DatasetCasting': ','.join(DatasetCasting),
+                                                  'TargetTable':','.join(TargetTable),
+                                                  'InputCols': ','.join(DimensionArray),
+                                                  'Values': '{}'})
+                        else:
+                            return Response(json.dumps({"Message": "Transformer type is not correct", "TransformerType": TranformerType,
+                                     "Dataset": DimensionName}))
+                            print(Transformer,':transformer:::::::::::')
+                        KeysMapping(InputKeys, Template, Transformer, Response)
+            else:
+                return Response(json.dumps({"Message": "No dimension found " + Dimension}))
+    except Exception as error:
+        print(error)
+        return Response(json.dumps({"Message": "Transformer not created ", "transformerFiles": Transformer, "code": 400}))
+    return Response(json.dumps({"Message": "Transformer created successfully", "TransformerFiles": CeatedTransformersList, "code": 200}))
+
 
 
 
@@ -219,6 +224,5 @@ def collect_keys(request, Response):
                 con.close()
     except Exception as error:
         print(error)
-        return Response(
-            json.dumps({"Message": "Transformer not created ", "transformerFiles": Transformer, "code": 400}))
-    return KeysMapping(InputKeys, Template, Transformer, Response)
+        return Response(json.dumps({"Message": "Transformer not created ", "transformerFiles": Transformer, "code": 400}))
+    return Response(json.dumps({"Message": "Transformer created successfully", "TransformerFiles": CeatedTransformersList, "code": 200}))

@@ -41,7 +41,6 @@ def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
 
         ### collecting generated file list
         CreatedSpecList.append({"filename": SpecFile})
-        return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))
     else:
         print('ERROR : InputKey is empty')
         return Response(json.dumps({"Message": "InputKey is empty"}))
@@ -108,7 +107,8 @@ def EventSpec(request, Response):
             KeysMaping(Program, InputKeys, Template, EventName, Response)
     except Exception as error:
         print(error)
-    return KeysMaping(Program, InputKeys, Template, EventName, Response)
+    return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))
+
 
 
 def DimensionSpec(request, Response):
@@ -167,7 +167,7 @@ def DimensionSpec(request, Response):
             KeysMaping(Program, InputKeys, Template, DimensionName, Response)
     except Exception as error:
         print(error)
-    return KeysMaping(Program, InputKeys, Template, DimensionName, Response)
+    return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))
 
 
 def DatasetSpec(request, Response):
@@ -277,4 +277,5 @@ def DatasetSpec(request, Response):
             KeysMaping(Program, InputKeys, SpecTemplate, DatasetName, Response)
     except Exception as error:
         print(error)
-    return KeysMaping(Program, InputKeys, SpecTemplate, DatasetName, Response)
+
+    return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))

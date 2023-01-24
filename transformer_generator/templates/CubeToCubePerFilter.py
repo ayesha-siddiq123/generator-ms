@@ -25,7 +25,7 @@ def filterTransformer(valueCols={ValueCols}):
     dataset_dimension_merge = df_dataset.merge(df_dimension, on=['{MergeOnCol}'], how='inner')                 ### mapping dataset with dimension
     df_total = dataset_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})            ### aggregation before filter
 
-    df_filter = dataset_dimension_merge.loc[df_datasetdf_dataset['{FilterCol}']{FilterType}{Filter}]                 ### applying filter
+    df_filter = dataset_dimension_merge.loc[dataset_dimension_merge['{FilterCol}']{FilterType}{Filter}]                 ### applying filter
     df_filter= df_filter.groupby({GroupBy}, as_index=False).agg({AggCols})                    ### aggregation after filter
     df_agg = df_filter.merge(df_total, on={GroupBy}, how='inner')                       ### merging aggregated DataFrames
     agg_col_list = df_agg.columns.to_list()
@@ -35,7 +35,7 @@ def filterTransformer(valueCols={ValueCols}):
     {DatasetCasting}
     col_list=df_agg.columns.to_list()
     df_snap = df_agg[col_list]
-    df_snap.column = valueCols
+    df_snap.columns = valueCols
     try:
         for index, row in df_snap.iterrows():
             values = []

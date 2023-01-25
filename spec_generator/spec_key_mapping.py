@@ -13,7 +13,6 @@ def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
     SpecTemplate = SpecTemplate + '.json'
     SpecFile = SpecFile + '.json'
     Program = Program + '_Specs'
-
     ### creating folder with program name
     if not os.path.exists(Program):
         os.makedirs(Program)

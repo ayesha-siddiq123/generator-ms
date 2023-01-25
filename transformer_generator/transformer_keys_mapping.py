@@ -100,7 +100,6 @@ def collect_keys(request, Response):
     Program = request.json['program']
     EventName = request.json['ingestion_name']
     Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + KeyFile
-    print(Path,'::::::::::::::::::::::::::::')
     ####### Reading Transformer Mapping Key Files ################
     try:
         df = pd.read_csv(Path)
@@ -131,7 +130,6 @@ def collect_keys(request, Response):
                 if cur.rowcount == 1:
                     for records in cur.fetchall():
                         for record in list(records):
-                            print(record)
                             Dataset = record['input']['properties']['dataset']['properties']
                             DatasetObject = list(Dataset['items']['items']['properties'].keys())
                             DatasetArray=Dataset['items']['items']['required']
@@ -139,7 +137,6 @@ def collect_keys(request, Response):
                             NumeratorCol = Dataset['aggregate']['properties']['numerator_col']
                             DenominatorCol = Dataset['aggregate']['properties']['denominator_col']
                             fun = Dataset['aggregate']['properties']['function']
-                            UpdateColList = []
                             df = pd.json_normalize(Dataset['items']['items']['properties'])
                             DatasetCasting = []
                             string_col_list = []
@@ -149,16 +146,7 @@ def collect_keys(request, Response):
                                     string_col_list.append(cols)
                             if len(string_col_list) != 0:
                                 DatasetCasting.append('df_agg.update(df_agg[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
-                            if not (NumeratorCol.lower()).startswith(('sum_', 'count_')):
-                                UpdateColList.append(fun[0] + '_' + NumeratorCol)
-                            else:
-                                UpdateColList.append(NumeratorCol)
-                            if not (DenominatorCol.lower()).startswith(('sum_', 'count_')):
-                                UpdateColList.append(fun[0] + '_' + DenominatorCol)
-                                UpdateColList.append("percentage")
-                            else:
-                                UpdateColList.append(DenominatorCol)
-                                UpdateColList.append("percentage")
+
                             UpdateCols = []
                             ReplaceFormat = []
                             IncrementFormat = []
@@ -194,9 +182,9 @@ def collect_keys(request, Response):
                             elif TransformerType in ['CubeToCubePer', 'CubeToCubePerIncrement', 'E&CToCubePerIncrement',
                                                     'E&CToCubePer']:
                                 table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
-                                InputKeys.update(
-                                    {'Table': table,'QueryDenominator': PercentageIncrement[1],
-                                     'QueryNumerator': PercentageIncrement[0]})
+                                InputKeys.update({'Table': table,'QueryDenominator': PercentageIncrement[1],
+                                     'QueryNumerator': PercentageIncrement[0],"eventCol":agg_col[0],"RenameCol":NumeratorCol,
+                                     "NumeratorCol":NumeratorCol,"DenominatorCol":DenominatorCol})
                             elif TransformerType in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement']:
                                 table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
                                 filter = Dataset['aggregate']['properties']['filters']['properties']

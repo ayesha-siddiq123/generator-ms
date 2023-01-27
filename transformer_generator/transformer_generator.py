@@ -7,11 +7,14 @@ app = Flask(__name__)
 
 @app.route('/generator', methods=['POST'])
 def TransformerGenerator():
+    operation=request.json['operation']
     try:
-        if request.json['operation'] == 'dataset':
+        if operation == 'dataset':
             return collect_keys(request, Response)
-        elif request.json['operation'] == 'dimension':
+        elif operation == 'dimension':
             return dimension_data_insert(request, Response)
+        else:
+            return Response(json.dumps({"Message":"Operation is not correct"}))
     except Exception as error:
         print(error)
         return Response(json.dumps({"Message": "Transformer not created"}))

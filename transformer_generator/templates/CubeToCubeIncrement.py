@@ -1,23 +1,7 @@
-import configparser
-import os
-from sqlalchemy import create_engine
 import pandas as pd
-from urllib.parse import quote
+from db_connection import db_connection
 
-configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/config.ini"
-print(configuartion_path)
-config = configparser.ConfigParser()
-config.read(configuartion_path);
-
-port = config['CREDs']['db_port']
-host = config['CREDs']['db_host']
-user = config['CREDs']['db_user']
-password = config['CREDs']['db_password']
-database = config['CREDs']['database']
-
-engine='postgresql://'+user+':%s@'+host+':'+port+'/'+database
-con=create_engine(engine %quote(password))
-cur = con.connect()
+con,cur=db_connection()
 
 def aggTransformer(valueCols={ValueCols}):
     df_dataset = pd.read_sql('select * from {Table};',con=con)

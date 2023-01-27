@@ -44,5 +44,5 @@ jobs:
           docker pull tibildocker/generator_ms
           docker stop ansible_generator_app_1 || true
           docker rm ansible_generator_app_1 || true
-          docker rmi tibildocker/generator_ms:dev || true
+          docker rmi tibildocker/generator_ms:qa || true
           docker run -d --name ansible_generator_app_1 -p 3003:3003 --network ansible_cqube_net tibildocker/generator_ms:qa

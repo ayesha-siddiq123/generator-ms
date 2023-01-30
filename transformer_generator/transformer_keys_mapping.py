@@ -42,8 +42,11 @@ def dimension_data_insert(request, Response):
     Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + KeyFile
     try:
         df = pd.read_csv(Path)
+        dimension_list=df['dimension_name'].drop_duplicates().tolist()
         if len(df) == 0:
             return Response(json.dumps({"Message": KeyFile + " is empty"}))
+        if Dimension not in dimension_list:
+            return Response(json.dumps({"Message": "Dimension name is not correct", "Dimension": Dimension}))
         df = df.loc[df['dimension_name'] == Dimension]
         Dimensionkeys = df.keys().tolist()
         DimensionValues = df.values.tolist()
@@ -105,6 +108,12 @@ def collect_keys(request, Response):
         df = pd.read_csv(Path)
         if len(df) == 0:
             return Response(json.dumps({"Message": KeyFile + " is empty"}))
+        program_list=df['program'].drop_duplicates().tolist()
+        event_list=df['event_name'].drop_duplicates().tolist()
+        if Program not in program_list:
+             return Response(json.dumps({"Message":"Program name is not correct","Program":Program}))
+        if EventName not in event_list:
+             return Response(json.dumps({"Message":"ingestion_name name is not correct","IngestionName":EventName}))
         df = df.loc[df['program'] == Program]
         df = df.loc[df['event_name'] == EventName]
         Datasetkeys = df.keys().tolist()

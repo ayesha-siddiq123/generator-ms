@@ -6,7 +6,10 @@ con,cur=db_connection()
 
 
 def aggTransformer(valueCols={ValueCols}):
+    create_folder('processing')
+    file_check({KeyFile})
     df_events = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + "/events/" + {KeyFile})
+    status_track({KeyFile}, 'event', 'Processing_'+{DatasetName})
     df_dataset=pd.read_sql('select * from {Table};',con=con)
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
     event_dimension_merge = df_events.merge(df_dimension, on=['{MergeOnCol}'], how='inner')
@@ -28,6 +31,7 @@ def aggTransformer(valueCols={ValueCols}):
             query = ''' INSERT INTO {TargetTable}({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {ReplaceFormat};'''\
             .format(','.join(map(str,values)))
             cur.execute(query)
+            status_track({KeyFile}, 'event', 'Completed_' + {DatasetName})
     except Exception as error:
         print(error)
 

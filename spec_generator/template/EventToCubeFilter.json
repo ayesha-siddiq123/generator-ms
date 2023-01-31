@@ -13,7 +13,8 @@
                     "table":  <DimensionTable>,
                     "column": <DimensionCol>,
                     "merge_on_col": <MergeOnCol>
-                }
+                },
+                "required": ["table","column","merge_on_col"]
             },
             "dataset": {
                 "type": "object",
@@ -38,11 +39,13 @@
                             "update_cols":  <UpdateCol>,
                             "columns": {
                                 "type": "array",
+                                "shouldnotnull": true,
                                 "items": {
                                     "type": "object",
                                     "properties": {
                                         "column":  <AggCol>
-                                    }
+                                    },
+                                    "required": ["column"]
                                 }
                             },
                             "filters": {
@@ -51,26 +54,28 @@
                                     "filter_col": <FilterCol>,
                                     "filter_type": <FilterType>,
                                     "filter": <Filter>
-                                }
-                            },
-                            "required": [
-                                "function",
-                                "target_table",
-                                "update_cols",
-                                "columns",
-                                "filters"
-                            ]
-                        }
-                    },
-                    "required": [
-                        "items"
-                    ]
-                }
-            },
-            "required": [
-                "dataset_name",
-                "dataset"
-            ]
-        }
+                                },
+                                "required": ["filter_col","filter_type","filter"]
+                            }
+                        },
+                        "required": [
+                            "function",
+                            "target_table",
+                            "numerator_col",
+                            "denominator_col",
+                            "update_cols",
+                            "columns"
+                        ]
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            }
+        },
+        "required": [
+            "dataset_name",
+            "dataset"
+        ]
     }
 }

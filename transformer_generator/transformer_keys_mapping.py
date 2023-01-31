@@ -113,7 +113,7 @@ def collect_keys(request, Response):
         if Program not in program_list:
              return Response(json.dumps({"Message":"Program name is not correct","Program":Program}))
         if EventName not in event_list:
-             return Response(json.dumps({"Message":"ingestion_name name is not correct","IngestionName":EventName}))
+             return Response(json.dumps({"Message":"Ingestion name is not correct","IngestionName":EventName}))
         df = df.loc[df['program'] == Program]
         df = df.loc[df['event_name'] == EventName]
         Datasetkeys = df.keys().tolist()
@@ -178,7 +178,7 @@ def collect_keys(request, Response):
                                 'InputCols': ','.join(DatasetArray),'ConflictCols': ','.join(Dataset['group_by']),
                                 'IncrementFormat': ','.join(IncrementFormat),'ReplaceFormat': ','.join(ReplaceFormat),
                                 'UpdateCols': ','.join(UpdateCols * 2),'UpdateCol': ','.join(UpdateCols),
-                                "KeyFile": json.dumps(EventName + '.csv')})
+                                "KeyFile": json.dumps(EventName + '.csv'),'DatasetName':DatasetName})
                             print(Template, '::::::::::::Template::::::::::::')
                             if TransformerType in ['EventToCube', 'EventToCubeIncrement']:
                                 InputKeys.update(InputKeys)

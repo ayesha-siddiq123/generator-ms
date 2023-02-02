@@ -29,7 +29,7 @@ def aggTransformer(valueCols={ValueCols}):
                 values.append(row[i])
             query = ''' INSERT INTO {TargetTable} As main_table({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {IncrementFormat},percentage=(({QueryNumerator})/({QueryDenominator}))*100;'''.format(','.join(map(str, values)),{UpdateCols})
             cur.execute(query)
-            status_track({KeyFile}, 'event', 'Completed_{DatasetName}')
+        status_track({KeyFile}, 'event', 'Completed_{DatasetName}')
 
     except Exception as error:
         print(error)

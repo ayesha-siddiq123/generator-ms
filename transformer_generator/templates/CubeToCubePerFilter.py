@@ -29,7 +29,7 @@ def filterTransformer(valueCols={ValueCols}):
                 values.append(row[i])
             query = ''' INSERT INTO {TargetTable}({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {ReplaceFormat};'''.format(','.join(map(str, values)))
             cur.execute(query)
-            status_track({KeyFile}, 'event', 'Completed_{DatasetName}')
+        status_track({KeyFile}, 'event', 'Completed_{DatasetName}')
     except Exception as error:
         print(error)
 

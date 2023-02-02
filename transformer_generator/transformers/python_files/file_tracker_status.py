@@ -30,7 +30,7 @@ def status_track(file_name,ingestion_type,status):
   })
   response = requests.request("PUT", url, headers=headers, data=request)
   re = response.json()
-  if re['ready_to_archive'] == "true":
+  if re['ready_to_archive'] == True:
     create_folder('/archive')
     shutil.move(os.path.dirname(path)+'/processing/'+file_name,os.path.dirname(path) +'/archive/'+file_name)
 

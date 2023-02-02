@@ -107,3 +107,4 @@ dist
 spec_generator/__pycache__/*
 transformer_generator/__pycache__/*
 transformer_generator/transformers/python_files/config.ini
+transformer_generator/transformers/python_files/__pycache__/*

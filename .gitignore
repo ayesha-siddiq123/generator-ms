@@ -106,4 +106,4 @@ dist
 # pycach local file
 spec_generator/__pycache__/*
 transformer_generator/__pycache__/*
-transformer_generator/transformers/config.ini
+transformer_generator/transformers/python_files/config.ini

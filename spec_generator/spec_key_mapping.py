@@ -207,7 +207,6 @@ def DatasetSpec(request, Response):
             dataset = (dict(zip(DatasetColList, value)))
             DatasetName = dataset['dataset_name']
             TransformerTemplate = dataset['transformer_template']
-            SpecTemplate=None
             ### checking template name and
             if TransformerTemplate in ['CubeToCube', 'CubeToCubeIncrement', 'CubeToCubePer', 'CubeToCubePerIncrement',
                                        'E&CToCubePer', 'E&CToCubePerIncrement']:
@@ -220,20 +219,21 @@ def DatasetSpec(request, Response):
                 SpecTemplate = 'CubeToCubeFilter'
             elif TransformerTemplate in ['EventToCubePerFilter','EventToCubePerFilterIncrement']:
                 SpecTemplate = 'EventToCubeFilter'
+            elif TransformerTemplate == 'Dataset_Dimension':
+                SpecTemplate = 'Dataset'
             else:
-                return Response(json.dumps({"Message": "Template name is not correct", "Template": SpecTemplate, "Dataset": DatasetName}))
-
+                return Response(json.dumps({"Message": "Template name is not correct", "Template": TransformerTemplate, "Dataset": DatasetName}))
             DimensionCol = [x.strip() for x in dataset['dimension_col'].split(',')]
             DimensionTable = [x.strip() for x in dataset['dimension_table'].split(',')]
             MergeOnCol = [x.strip() for x in dataset['merge_on_col'].split(',')]
             DatasetColumn = [x.strip() for x in dataset['dataset_col'].split(',')]
             DataTypes = [x.strip() for x in dataset['dataset_datatype'].split(',')]
             DatasetDict = dict(zip(DatasetColumn, DataTypes))
-            GroupByCol = [x.strip() for x in dataset['group_by_col'].split(',')]
-            AggFunction = [x.strip() for x in dataset['agg_function'].split(',')]
-            TargetTable = [x.strip() for x in dataset['target_table'].split(',')]
-            UpdateCol = [x.strip() for x in dataset['update_col'].split(',')]
-            AggCol = [x.strip() for x in dataset['agg_col'].split(',')]
+            GroupByCol = [x.strip() for x in str(dataset['group_by_col']).split(',')]
+            AggFunction = [x.strip() for x in str(dataset['agg_function']).split(',')]
+            TargetTable = [x.strip() for x in str(dataset['target_table']).split(',')]
+            UpdateCol = [x.strip() for x in str(dataset['update_col']).split(',')]
+            AggCol = [x.strip() for x in str(dataset['agg_col']).split(',')]
             AggColTable = [x.strip() for x in dataset['agg_col_table'].split(',')]
             FilterCol = [x.strip() for x in str(dataset['filter_col']).split(',')]
             FilterType = [x.strip() for x in str(dataset['filter_type']).strip('{}').split(',')]
@@ -263,15 +263,17 @@ def DatasetSpec(request, Response):
                  "DimensionTable": json.dumps(','.join(DimensionTable)),"DimensionCol": json.dumps(DimensionCol),"MergeOnCol":json.dumps(','.join(MergeOnCol)),
                  "GroupByCol": json.dumps(GroupByCol),"AggFunction": json.dumps(AggFunction),"AggCol": json.dumps(AggCol),
                  "UpdateCol": json.dumps(UpdateCol),"NumeratorCol":json.dumps(','.join(Numerator)),"DenominatorCol":json.dumps(','.join(Denominator))})
-            if SpecTemplate == "EventToCube":
+            if SpecTemplate in ["EventToCube","Dataset"]:
                 InputKeys.update(InputKeys)
+            elif SpecTemplate == "EventToCubeFilter":
+                InputKeys.update({"FilterCol": json.dumps(','.join(FilterCol)),
+                     "FilterType": json.dumps(','.join(FilterType)), "Filter": json.dumps(','.join(Filter))})
             elif SpecTemplate == "CubeToCube":
                 InputKeys.update({"AggColTable":json.dumps(','.join(AggColTable))})
             elif SpecTemplate == "CubeToCubeFilter":
                 InputKeys.update({"AggColTable":json.dumps(','.join(AggColTable)),"FilterCol":json.dumps(','.join(FilterCol)),
                                   "FilterType":json.dumps(','.join(FilterType)),"Filter":json.dumps(','.join(Filter))})
             else:
-                print("ERROR: Template name is not correct")
                 return Response(json.dumps({"Message": "Template name is not correct", "Template": SpecTemplate}))
             KeysMaping(Program, InputKeys, SpecTemplate, DatasetName, Response)
     except Exception as error:

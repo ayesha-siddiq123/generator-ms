@@ -1,15 +1,13 @@
 import os
 import pandas as pd
-from db_connection import db_connection
+from db_connection import *
 from file_tracker_status import *
-
 con,cur=db_connection()
 
 def aggTransformer(valueCols={ValueCols}):
-    create_folder('processing')
-    file_check({KeyFile})
-    df_events = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + "/events/" + {KeyFile})
-    status_track({KeyFile}, 'event', 'Processing_'+{DatasetName})
+    create_folder('/processing')
+    file_check({KeyFile},'event')
+    df_events = pd.read_csv(os.path.dirname(path) + "/processing/" + {KeyFile})
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
     event_dimension_merge = df_events.merge(df_dimension, on=['{MergeOnCol}'], how='inner')
     df_agg = event_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})
@@ -25,7 +23,7 @@ def aggTransformer(valueCols={ValueCols}):
             query = ''' INSERT INTO {TargetTable} As main_table({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {IncrementFormat};'''\
             .format(','.join(map(str,values)),{UpdateCol})
             cur.execute(query)
-            status_track({KeyFile}, 'event', 'Completed_'+{DatasetName})
+            status_track({KeyFile}, 'event', 'Completed_{DatasetName}')
     except Exception as error:
         print(error)
 

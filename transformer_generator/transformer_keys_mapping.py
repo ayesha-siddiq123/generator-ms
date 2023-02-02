@@ -5,7 +5,9 @@ import re
 import pandas as pd
 import psycopg2 as pg
 
-configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/transformers/config.ini"
+
+configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/transformers/python_files/config.ini"
+print(configuartion_path)
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 
@@ -17,8 +19,10 @@ database = config['CREDs']['database']
 CeatedTransformersList = []
 
 def KeysMapping(InputKeys, Template, Transformer, Response):
-    if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/transformers/' + Transformer):
-        os.remove(os.path.dirname(os.path.abspath(__file__)) + '/transformers/' + Transformer)
+    if not (os.path.exists(os.path.dirname(os.path.abspath(__file__))+ "/transformers/python_files")):
+        os.makedirs(os.path.dirname(os.path.abspath(__file__)) + "/transformers/python_files")
+    if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/transformers/python_files/' + Transformer):
+        os.remove(os.path.dirname(os.path.abspath(__file__)) + '/transformers/python_files/' + Transformer)
     with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + Template, 'r') as fs:
         valueOfTemplate = fs.readlines()
     if len(InputKeys) != 0:
@@ -28,7 +32,7 @@ def KeysMapping(InputKeys, Template, Transformer, Response):
             for key in templateKeys:
                 replaceStr = '{' + key + '}'
                 ToreplaceString = ToreplaceString.replace(replaceStr, str(InputKeys[key]))
-            with open(os.path.dirname(os.path.abspath(__file__)) + '/transformers/' + Transformer, 'a') as fs:
+            with open(os.path.dirname(os.path.abspath(__file__)) + '/transformers/python_files/' + Transformer, 'a') as fs:
                 fs.write(ToreplaceString)
         CeatedTransformersList.append({"filename": Transformer})
     else:
@@ -82,7 +86,7 @@ def dimension_data_insert(request, Response):
                                                   'DatasetCasting': ','.join(DatasetCasting),
                                                   'TargetTable':','.join(TargetTable),
                                                   'InputCols': ','.join(DimensionArray),
-                                                  'Values': '{}'})
+                                                  'Values': '{}',"DimensionName":DimensionName})
                         else:
                             return Response(json.dumps({"Message": "Transformer type is not correct", "TransformerType": TranformerType,
                                      "Dataset": DimensionName}))

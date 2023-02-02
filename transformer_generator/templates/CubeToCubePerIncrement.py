@@ -1,7 +1,9 @@
 import pandas as pd
-from db_connection import db_connection
+from db_connection import *
+from file_tracker_status import *
 
 con,cur=db_connection()
+
 def aggTransformer(valueCols={ValueCols}):
     df_dataset = pd.read_sql('select * from {Table};',con=con)
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
@@ -18,6 +20,8 @@ def aggTransformer(valueCols={ValueCols}):
             query = ''' INSERT INTO {TargetTable} As main_table({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {IncrementFormat},percentage=(({QueryNumerator})/({QueryDenominator}))*100;'''\
             .format(','.join(map(str,values)),{UpdateCols})
             cur.execute(query)
+            status_track({KeyFile}, 'event', 'Completed_{DatasetName}')
+
     except Exception as error:
         print(error)
 

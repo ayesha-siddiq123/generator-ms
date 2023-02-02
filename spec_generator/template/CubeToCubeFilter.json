@@ -76,7 +76,6 @@
         },
         "required": [
             "dataset_name",
-            "dimensions",
             "dataset"
         ]
     }

@@ -8,7 +8,7 @@ con,cur=db_connection()
 def Datainsert(valueCols={ValueCols}):
     create_folder('/processing')
     file_check({KeyFile},'dimension')
-    df_data=pd.read_csv(os.path.dirname(path) + "/transformers/processing/" + {KeyFile})
+    df_data=pd.read_csv(os.path.dirname(path) + "/processing/" + {KeyFile})
     {DatasetCasting}
     df_snap = df_data[valueCols]
     try:

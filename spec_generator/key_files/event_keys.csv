@@ -3,3 +3,6 @@ SAC,event_students_attendance,"date,school_id,grade,gender,total_students,studen
 SAC,event_teachers_attendance,"date,school_id,grade,total_teachers,teachers_attendance_marked,teachers_marked_present","string,integer,integer,integer,integer,integer"
 School_Statistics,event_school_statistics_students,"academic_year,school_id,grade,gender,student_category,students_enrolled,cwsn_enrolled","integer,integer,integer,string,string,integer,integer"
 School_Statistics,event_school_statistics_teachers,"academic_year,school_id,grade,total_teachers,students_enrolled","integer,integer,integer,integer,integer,integer"
+Review_Monitoring,event_review_cluster,"date, cluster_id, meeting_conducted","string, integer, integer"
+Review_Monitoring,event_review_block,"date, block_id,meeting_conducted","string, integer, integer"
+Review_Monitoring,event_review_district,"date, district_id, meeting_conducted","string, integer, integer"

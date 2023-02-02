@@ -1,0 +1,42 @@
+{
+    "ingestion_type": "dataset",
+    "dataset_name": <DatasetName>,
+    "input": {
+        "type": "object",
+        "properties": {
+            "dataset_name": {
+                "type": "string"
+            },
+            "dataset": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "shouldnotnull": true,
+                        "items": {
+                            "type": "object",
+                            "properties": <DatasetObject>,
+                            "required":  <DatasetList>
+                        }
+                    },
+                    "aggregate": {
+                        "type": "object",
+                        "properties": {
+                            "target_table": <TargetTable>
+                        },
+                        "required": [
+                            "target_table"
+                        ]
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            }
+        },
+        "required": [
+            "dataset_name",
+            "dataset"
+        ]
+    }
+}

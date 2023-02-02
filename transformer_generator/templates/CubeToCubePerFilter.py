@@ -1,7 +1,9 @@
 import pandas as pd
-from db_connection import db_connection
+from db_connection import *
+from file_tracker_status import *
 
 con,cur=db_connection()
+
 
 def filterTransformer(valueCols={ValueCols}):
     df_dataset  = pd.read_sql('select * from {Table}', con=con)                                     ### reading dataset from database
@@ -27,6 +29,7 @@ def filterTransformer(valueCols={ValueCols}):
                 values.append(row[i])
             query = ''' INSERT INTO {TargetTable}({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {ReplaceFormat};'''.format(','.join(map(str, values)))
             cur.execute(query)
+            status_track({KeyFile}, 'event', 'Completed_{DatasetName}')
     except Exception as error:
         print(error)
 

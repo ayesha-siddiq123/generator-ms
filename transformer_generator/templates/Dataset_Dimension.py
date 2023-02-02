@@ -19,7 +19,7 @@ def Datainsert(valueCols={ValueCols}):
             query = ''' INSERT INTO {TargetTable}({InputCols}) VALUES ({Values});'''\
             .format(','.join(map(str,values)))
             cur.execute(query)
-            status_track({KeyFile}, 'dimension', 'Completed_{DimensionName}')
+        status_track({KeyFile}, 'dimension', 'Completed_{DimensionName}')
 
     except Exception as error:
         print(error)

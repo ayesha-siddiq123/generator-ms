@@ -1,11 +1,14 @@
 import os
 import pandas as pd
-from db_connection import db_connection
-
+from db_connection import *
+from file_tracker_status import *
 con,cur=db_connection()
 
+
 def Datainsert(valueCols={ValueCols}):
-    df_data=pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + "/events/" + {KeyFile})
+    create_folder('/processing')
+    file_check({KeyFile},'dimension')
+    df_data=pd.read_csv(os.path.dirname(path) + "/transformers/processing/" + {KeyFile})
     {DatasetCasting}
     df_snap = df_data[valueCols]
     try:
@@ -16,6 +19,8 @@ def Datainsert(valueCols={ValueCols}):
             query = ''' INSERT INTO {TargetTable}({InputCols}) VALUES ({Values});'''\
             .format(','.join(map(str,values)))
             cur.execute(query)
+            status_track({KeyFile}, 'dimension', 'Completed_{DimensionName}')
+
     except Exception as error:
         print(error)
 

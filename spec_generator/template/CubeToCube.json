@@ -13,7 +13,8 @@
                     "table":  <DimensionTable>,
                     "column": <DimensionCol>,
                     "merge_on_col": <MergeOnCol>
-                }
+                },
+                "required": ["table","column","merge_on_col"]
             },
             "dataset": {
                 "type": "object",
@@ -38,31 +39,35 @@
                             "update_cols":  <UpdateCol>,
                             "columns": {
                                 "type": "array",
+                                "shouldnotnull": true,
                                 "items": {
                                     "type": "object",
                                     "properties": {
                                         "table": <AggColTable>,
                                         "column":  <AggCol>
-                                    }
+                                    },
+                                    "required": ["column"]
                                 }
-                            },
-                            "required": [
-                                "function",
-                                "target_table",
-                                "update_cols",
-                                "columns"
-                            ]
-                        }
-                    },
-                    "required": [
-                        "items"
-                    ]
-                }
-            },
-            "required": [
-                "dataset_name",
-                "dataset"
-            ]
-        }
+                            }
+                        },
+                        "required": [
+                            "function",
+                            "target_table",
+                            "numerator_col",
+                            "denominator_col",
+                            "update_cols",
+                            "columns"
+                        ]
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            }
+        },
+        "required": [
+            "dataset_name",
+            "dataset"
+        ]
     }
 }

@@ -3,23 +3,8 @@ import configparser
 import pandas as pd
 from urllib.parse import quote
 from sqlalchemy import create_engine
-
-
-configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/config.ini"
-print(configuartion_path)
-config = configparser.ConfigParser()
-config.read(configuartion_path);
-
-port = config['CREDs']['db_port']
-host = config['CREDs']['db_host']
-user = config['CREDs']['db_user']
-password = config['CREDs']['db_password']
-database = config['CREDs']['database']
-
-
-engine='postgresql://'+user+':%s@'+host+':'+port+'/'+database
-con=create_engine(engine %quote(password))
-cur = con.connect()
+from db import *
+con,cur = db_connection() 
 
 def aggTransformer(valueCols={ValueCols}):
 
@@ -39,8 +24,14 @@ def aggTransformer(valueCols={ValueCols}):
             query = ''' INSERT INTO {TargetTable}({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {ReplaceFormat};'''\
             .format(','.join(map(str,values)))
             cur.execute(query)
+            con.commit()
     except Exception as error:
         print(error)
+    finally:
+        if cur is not None:
+            cur.close()
+        if con is not None:
+            con.close()
 
 aggTransformer()
 

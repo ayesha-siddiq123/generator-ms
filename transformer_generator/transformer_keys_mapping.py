@@ -70,7 +70,7 @@ def dimension_data_insert(request, Response):
                     for record in list(records):
                         DimensionObject = list(record['input']['properties']['dimension']['items']['properties'].keys())
                         DimensionArray=list(record['input']['properties']['dimension']['items']['required'])
-                        TargetTable = list(record['input']['properties']['target_table']['properties'].keys())
+                        TargetTable = record['input']['properties']['target_table']
                         string_col_list = []
                         DatasetCasting = []
                         df = pd.json_normalize(record['input']['properties']['dimension']['items']['properties'])
@@ -84,7 +84,7 @@ def dimension_data_insert(request, Response):
                         if TransformerType == 'Dataset_Dimension':
                             InputKeys.update({'ValueCols':DimensionArray, "KeyFile": json.dumps(Dimension + '.csv'),
                                                   'DatasetCasting': ','.join(DatasetCasting),
-                                                  'TargetTable':','.join(TargetTable),
+                                                  'TargetTable':TargetTable,
                                                   'InputCols': ','.join(DimensionArray),
                                                   'Values': '{}',"DimensionName":DimensionName})
                         else:

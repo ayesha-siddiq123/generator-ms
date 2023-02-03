@@ -16,11 +16,7 @@
                     "required":  <DimensionList>
                 }
             },
-           "target_table":
-            {
-                "type": "object",
-                    "properties": <TargetTable>
-            }
+           "target_table":<TargetTable>
       },
         "required": [
             "dimension_name",

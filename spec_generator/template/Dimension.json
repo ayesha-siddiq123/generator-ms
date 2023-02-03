@@ -9,15 +9,18 @@
             },
             "dimension": {
                 "type": "array",
-              "shouldnotnull": true,
+                "shouldnotnull": true,
                 "items": {
                     "type": "object",
                     "properties": <DimensionObject>,
                     "required":  <DimensionList>
                 }
             },
-           "target_table":<TargetTable>
-      },
+            "target_table": {
+                "type": "string",
+                "pattern": <TargetTable>
+            }
+        },
         "required": [
             "dimension_name",
             "dimension"

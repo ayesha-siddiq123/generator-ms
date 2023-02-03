@@ -6,9 +6,8 @@ con,cur=db_connection()
 
 
 def aggTransformer(valueCols={ValueCols}):
-    create_folder('/processing')
     file_check({KeyFile},'event')
-    df_events = pd.read_csv(os.path.dirname(path) + "/processing/" + {KeyFile})
+    df_events = pd.read_csv("/processing_data/" + {KeyFile})
     df_dataset = pd.read_sql('select * from {Table};', con=con)
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
     event_dimension_merge = df_events.merge(df_dimension, on=['{MergeOnCol}'], how='inner')

@@ -73,8 +73,11 @@ def EventSpec(request, Response):
         ########## Reading  Eventtkeys csv file #################
         EventPath = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + EventKeys
         df_event = pd.read_csv(EventPath)
+        program_list=df_event['program'].values.tolist()
         if len(df_event) == 0:
             return Response(json.dumps({"Message": EventKeys + " is empty"}))
+        if Program not in program_list:
+            return Response(json.dumps({"Message": "Invalid Program name", "Program": Program}))
         df_event = df_event.loc[df_event['program'] == Program]
         E_keys = df_event.keys().tolist()
         event_items = df_event.values.tolist()
@@ -86,18 +89,16 @@ def EventSpec(request, Response):
             EventDict = dict(zip(EventColumn, DataTypes))
             ColumnsDataType = []
             for event_col in EventColumn:
-                if event_col.casefold() == 'date':
-                    ColumnsDataType.append({"type": "string", "shouldnotnull": True, "format": "date"})
+                if 'date' in event_col.casefold():
+                    ColumnsDataType.append({"type":EventDict[event_col].strip(), "shouldnotnull": True, "format": "date"})
                 elif (event_col.casefold() == 'grade') | (event_col.casefold() == 'class'):
-                    ColumnsDataType.append({"type": "integer", "shouldnotnull": True, "minimum": 1, "maximum": 12})
-                elif event_col.casefold() in ['year', 'academic_year']:
+                    ColumnsDataType.append({"type": EventDict[event_col].strip(), "shouldnotnull": True, "minimum": 1, "maximum": 12})
+                elif 'year' in event_col.casefold():
                     ColumnsDataType.append(
-                        {"type": "integer", "shouldnotnull": True, "minimum": ((todays_date.year) - 5),
+                        {"type":EventDict[event_col].strip(), "shouldnotnull": True, "minimum": ((todays_date.year) - 5),
                          "maximum": int(todays_date.year)})
                 elif event_col in ValidationColList:
-                    min = int(str(validation_dict[event_col]).split(',')[0])
-                    max = int(str(validation_dict[event_col]).split(',')[1])
-                    ColumnsDataType.append({"type": "integer", "shouldnotnull": True, "minimum": min, "maximum": max})
+                    ColumnsDataType.append({"type": EventDict[event_col].strip(), "shouldnotnull": True,"pattern": "^[a-z,A-Z,0-9]{"+str(validation_dict[event_col])+"}$"})
                 else:
                     ColumnsDataType.append({"type": EventDict[event_col].strip(), "shouldnotnull": True})
             InputKeys.update({"EventName": json.dumps(EventName),
@@ -106,6 +107,7 @@ def EventSpec(request, Response):
             KeysMaping(Program, InputKeys, Template, EventName, Response)
     except Exception as error:
         print(error)
+        return Response(json.dumps({"Message": "Spec not created", "SpecFiles":EventName, "code": 400}))
     return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))
 
 
@@ -151,21 +153,19 @@ def DimensionSpec(request, Response):
             ColumnsDataType = []
             for dimension_col in DimensionColumn:
                 if (dimension_col.casefold() == 'grade') | (dimension_col.casefold() == 'class'):
-                    ColumnsDataType.append({"type": "integer", "shouldnotnull": True, "minimum": 1, "maximum": 12})
+                    ColumnsDataType.append({"type":DimensionDict[dimension_col].strip(), "shouldnotnull": True, "minimum": 1, "maximum": 12})
                 elif dimension_col in ValidationColList:
-                    min = int(str(ValidationDict[dimension_col]).split(',')[0])
-                    max = int(str(ValidationDict[dimension_col]).split(',')[1])
-                    ColumnsDataType.append({"type": "integer", "shouldnotnull": True, "minimum": min, "maximum": max})
-
+                    ColumnsDataType.append({"type": DimensionDict[dimension_col].strip(), "shouldnotnull": True,"pattern": "^[a-z,A-Z,0-9]{"+str(ValidationDict[dimension_col])+"}$"})
                 else:
                     ColumnsDataType.append({"type": DimensionDict[dimension_col].strip(), "shouldnotnull": True})
             InputKeys.update({"DimensionName": json.dumps(DimensionName),
                               "DimensionObject": json.dumps(dict(zip(DimensionColumn, ColumnsDataType))),
                               "DimensionList": json.dumps(DimensionColumn),
-                              "TargetTable": json.dumps(dict(zip(TargetTable, [{"type": "string", "shouldnotnull": True}])))})
+                              "TargetTable": json.dumps(','.join(TargetTable))})
             KeysMaping(Program, InputKeys, Template, DimensionName, Response)
     except Exception as error:
         print(error)
+        return Response(json.dumps({"Message": "Spec not created", "SpecFiles":DimensionName, "code": 400}))
     return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))
 
 
@@ -194,11 +194,13 @@ def DatasetSpec(request, Response):
     ########## Reading  Datasetkeys csv file #################
     DatasetPath = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + DatasetKeys
     df_dataset = pd.read_csv(DatasetPath)
+    program_list=df_dataset['program'].values.tolist()
     ### Dataframe empty check
     if len(df_dataset) == 0:
         return Response(json.dumps({"Message": DatasetKeys + " is empty"}))
+    if Program not in program_list:
+        return Response(json.dumps({"Message": "Invalid Program name", "Program": Program}))
     df_dataset = df_dataset.loc[df_dataset['program'] == Program]
-
     try:
         ### converting dataset_key_file (colums and rows)into key value pair
         DatasetColList = df_dataset.keys().tolist()
@@ -207,15 +209,13 @@ def DatasetSpec(request, Response):
             dataset = (dict(zip(DatasetColList, value)))
             DatasetName = dataset['dataset_name']
             TransformerTemplate = dataset['transformer_template']
-            ### checking template name and
-            if TransformerTemplate in ['CubeToCube', 'CubeToCubeIncrement', 'CubeToCubePer', 'CubeToCubePerIncrement',
-                                       'E&CToCubePer', 'E&CToCubePerIncrement']:
+
+            ### checking transformer template name and assigning proper spec template
+            if TransformerTemplate in ['E&CToCubePer', 'E&CToCubePerIncrement']:
                 SpecTemplate = 'CubeToCube'
-            elif TransformerTemplate in ['EventToCube', 'EventToCubeIncrement', 'EventToCubePer',
-                                         'EventToCubePerIncrement']:
+            elif TransformerTemplate in ['EventToCube', 'EventToCubeIncrement', 'EventToCubePer','EventToCubePerIncrement']:
                 SpecTemplate = 'EventToCube'
-            elif TransformerTemplate in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement', 'CubeToCubeFilter',
-                                         'CubeToCubeFilterIncrement']:
+            elif TransformerTemplate in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement','CubeToCubeFilter','CubeToCubeFilterIncrement']:
                 SpecTemplate = 'CubeToCubeFilter'
             elif TransformerTemplate in ['EventToCubePerFilter','EventToCubePerFilterIncrement']:
                 SpecTemplate = 'EventToCubeFilter'
@@ -223,6 +223,8 @@ def DatasetSpec(request, Response):
                 SpecTemplate = 'Dataset'
             else:
                 return Response(json.dumps({"Message": "Template name is not correct", "Template": TransformerTemplate, "Dataset": DatasetName}))
+
+            ### Reading data from dataset_keys file and assigning to variables
             DimensionCol = [x.strip() for x in dataset['dimension_col'].split(',')]
             DimensionTable = [x.strip() for x in dataset['dimension_table'].split(',')]
             MergeOnCol = [x.strip() for x in dataset['merge_on_col'].split(',')]
@@ -243,26 +245,29 @@ def DatasetSpec(request, Response):
             ColumnsDataType = []
             if len(DatasetColumn)!=len(DataTypes):
                 return Response(json.dumps({'Message':'Length of dataset columns and datatypes are not matching '+DatasetName}))
+
+            ### creating validation format
             for datasetcol in DatasetColumn:
-                if datasetcol.casefold() == 'date':
-                    ColumnsDataType.append({"type": "string", "shouldnotnull": True, "format": "date"})
+                if 'date' in datasetcol.casefold():
+                    ColumnsDataType.append({"type": DatasetDict[datasetcol].strip(), "shouldnotnull": True, "format": "date"})
                 elif (datasetcol.casefold() == 'grade') | (datasetcol.casefold() == 'class'):
-                    ColumnsDataType.append({"type": "integer", "shouldnotnull": True, "minimum": 1, "maximum": 12})
-                elif datasetcol.casefold() in ['year', 'academic_year']:
+                    ColumnsDataType.append({"type":DatasetDict[datasetcol].strip(), "shouldnotnull": True, "minimum": 1, "maximum": 12})
+                elif 'year' in datasetcol.casefold():
                     ColumnsDataType.append(
-                        {"type": "integer", "shouldnotnull": True, "minimum": ((todays_date.year) - 5),
+                        {"type": DatasetDict[datasetcol].strip(), "shouldnotnull": True, "minimum": ((todays_date.year) - 5),
                          "maximum": int(todays_date.year)})
                 elif datasetcol in ValidationColList:
-                    min = int(str(ValidationDict[datasetcol]).split(',')[0])
-                    max = int(str(ValidationDict[datasetcol]).split(',')[1])
-                    ColumnsDataType.append({"type": "integer", "shouldnotnull": True, "minimum": min, "maximum": max})
+                    ColumnsDataType.append({"type": DatasetDict[datasetcol].strip(), "shouldnotnull": True, "pattern": "^[a-z,A-Z,0-9]{"+str(ValidationDict[datasetcol])+"}$"})
                 else:
                     ColumnsDataType.append({"type": DatasetDict[datasetcol].strip(), "shouldnotnull": True})
+
+            ### collecting mapping keys
             InputKeys.update({"DatasetName": json.dumps(DatasetName),"DatasetList": json.dumps(DatasetColumn),
                  "DatasetObject": json.dumps(dict(zip(DatasetColumn, ColumnsDataType))),"TargetTable":json.dumps(','.join(TargetTable)),
                  "DimensionTable": json.dumps(','.join(DimensionTable)),"DimensionCol": json.dumps(DimensionCol),"MergeOnCol":json.dumps(','.join(MergeOnCol)),
                  "GroupByCol": json.dumps(GroupByCol),"AggFunction": json.dumps(AggFunction),"AggCol": json.dumps(AggCol),
                  "UpdateCol": json.dumps(UpdateCol),"NumeratorCol":json.dumps(','.join(Numerator)),"DenominatorCol":json.dumps(','.join(Denominator))})
+
             if SpecTemplate in ["EventToCube","Dataset"]:
                 InputKeys.update(InputKeys)
             elif SpecTemplate == "EventToCubeFilter":
@@ -278,5 +283,5 @@ def DatasetSpec(request, Response):
             KeysMaping(Program, InputKeys, SpecTemplate, DatasetName, Response)
     except Exception as error:
         print(error)
-
+        return Response(json.dumps({"Message": "Spec not created", "SpecFiles":DatasetName, "code": 400}))
     return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))

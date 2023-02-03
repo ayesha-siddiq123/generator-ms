@@ -1,7 +1,7 @@
 column,validations
-school_id,"1000000000,9999999999"
-cluster_id,"100000000,999999999"
-block_id,"10000,99999"
-district_id,"100,999"
-state_id,"1,99"
-grade,"1,12"
+school_id,10
+cluster_id,9
+block_id,5
+district_id,3
+state_id,2
+

@@ -1,0 +1,33 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N806" />
+          <option value="N803" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="APIs.sum_template.mergeOnCol" />
+          <option value="APIs.sum_template.aggCol" />
+          <option value="APIs.sum_template.groupBy" />
+          <option value="APIs.sum_template.valueCols" />
+          <option value="APIs.sum_template.aggMin" />
+          <option value="APIs.sum_template.aggMax" />
+          <option value="APIs.sum_template.aggMean" />
+          <option value="APIs.sum_template.aggSum" />
+          <option value="APIs.filter_tamplate.valueCols" />
+          <option value="APIs.filter_tamplate.merge_on_col" />
+          <option value="APIs.filter_tamplate.filter_type" />
+          <option value="APIs.filter_tamplate.agg_col" />
+          <option value="APIs.filter_tamplate.groupBy" />
+          <option value="APIs.perc_template.valueCols" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

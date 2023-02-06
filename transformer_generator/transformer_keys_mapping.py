@@ -154,7 +154,7 @@ def collect_dataset_keys(request, Response):
                                 if (df[col] == "string").item():
                                     string_col_list.append(cols)
                             if len(string_col_list) != 0:
-                                DatasetCasting.append('df_agg.update(df_agg[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
+                                DatasetCasting.append('df_data.update(df_data[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
                             DateFilter = []
                             YearFilter = []
                             for i in DatasetArray:

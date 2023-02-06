@@ -7,9 +7,10 @@ con,cur=db_connection()
 
 def filterTransformer(valueCols={ValueCols}):
     file_check('{KeyFile}','event')
-    df_events = pd.read_csv(os.path.dirname(root_path)+"processing_data/{KeyFile}")
+    df_data = pd.read_csv(os.path.dirname(root_path)+"processing_data/{KeyFile}")
+    {DatasetCasting}  ### adding quotes to string values
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}',con=con)  ### reading DimensionDataset from Database
-    event_dimension_merge = df_events.merge(df_dimension, on=['{MergeOnCol}'],how='inner')  ### mapping dataset with dimension
+    event_dimension_merge = df_data.merge(df_dimension, on=['{MergeOnCol}'],how='inner')  ### mapping dataset with dimension
     df_total = event_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})  ### aggregation before filter
     df_total['{DenominatorCol}'] = df_total['{AggCol}']
     df_filter = event_dimension_merge.loc[event_dimension_merge['{FilterCol}']{FilterType}{Filter}]  ### applying filter
@@ -17,7 +18,6 @@ def filterTransformer(valueCols={ValueCols}):
     df_filter['{NumeratorCol}'] = df_filter['{AggCol}']
     df_agg = df_filter.merge(df_total, on={GroupBy}, how='inner')  ### merging aggregated DataFrames
     df_agg['percentage'] = ((df_agg['{NumeratorCol}'] / df_agg['{DenominatorCol}']) * 100)  ### Calculating Percentage
-    {DatasetCasting}  ### adding quotes to string values
     col_list = df_agg.columns.to_list()
     df_snap = df_agg[col_list]
     df_snap.columns = valueCols ### renaming dataset columns

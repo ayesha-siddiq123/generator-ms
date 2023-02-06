@@ -6,11 +6,12 @@ from datetime import date
 con,cur=db_connection()
 
 def filterTransformer(valueCols={ValueCols}):
-    df_dataset  = pd.read_sql('select * from {Table}', con=con)
+    df_data  = pd.read_sql('select * from {Table}', con=con)
     {DateFilter}
     {YearFilter}
+    {DatasetCasting}
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}',con=con)  ### reading DimensionDataset from Database
-    dataset_dimension_merge = df_dataset.merge(df_dimension, on=['{MergeOnCol}'],how='inner')  ### mapping dataset with dimension
+    dataset_dimension_merge = df_data.merge(df_dimension, on=['{MergeOnCol}'],how='inner')  ### mapping dataset with dimension
     df_total = dataset_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})  ### aggregation before filter
     df_total['{DenominatorCol}'] = df_total['{AggCol}']
     df_filter = dataset_dimension_merge.loc[dataset_dimension_merge['{FilterCol}']{FilterType}{Filter}]  ### applying filter
@@ -18,7 +19,6 @@ def filterTransformer(valueCols={ValueCols}):
     df_filter['{NumeratorCol}'] = df_filter['{AggCol}']
     df_agg = df_filter.merge(df_total, on={GroupBy}, how='inner')  ### merging aggregated DataFrames
     df_agg['percentage'] = ((df_agg['{NumeratorCol}'] / df_agg['{DenominatorCol}']) * 100)  ### Calculating Percentage
-    {DatasetCasting}
     col_list = df_agg.columns.to_list()
     df_snap = df_agg[col_list]
     df_snap.columns = valueCols

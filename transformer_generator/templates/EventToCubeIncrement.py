@@ -2,7 +2,6 @@ import pandas as pd
 from db_connection import *
 from file_tracker_status import *
 from datetime import date
-
 con,cur=db_connection()
 
 def aggTransformer(valueCols={ValueCols}):
@@ -22,9 +21,15 @@ def aggTransformer(valueCols={ValueCols}):
             query = ''' INSERT INTO {TargetTable} As main_table({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {IncrementFormat};'''\
             .format(','.join(map(str,values)),{UpdateCol})
             cur.execute(query)
+            con.commit()
          status_track('{KeyFile}', 'event', 'Completed_{DatasetName}')
     except Exception as error:
         print(error)
+    finally:
+        if cur is not None:
+            cur.close()
+        if con is not None:
+            con.close()
 
 aggTransformer()
 

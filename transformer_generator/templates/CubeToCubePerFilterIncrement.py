@@ -29,10 +29,16 @@ def filterTransformer(valueCols={ValueCols}):
                 values.append(row[i])
             query = ''' INSERT INTO {TargetTable} As main_table({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {IncrementFormat},percentage=(({QueryNumerator})/({QueryDenominator}))*100;'''.format(','.join(map(str, values)),{UpdateCols})
             cur.execute(query)
+            con.commit()
         status_track('{KeyFile}', 'event', 'Completed_{DatasetName}')
 
     except Exception as error:
         print(error)
+    finally:
+        if cur is not None:
+            cur.close()
+        if con is not None:
+            con.close()
 
 filterTransformer()
 

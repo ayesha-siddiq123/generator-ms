@@ -50,7 +50,7 @@ def collect_dimension_keys(request, Response):
         if len(df) == 0:
             return Response(json.dumps({"Message": KeyFile + " is empty"}))
         if Dimension not in dimension_list:
-            return Response(json.dumps({"Message": "Dimension name is not correct", "Dimension": Dimension}))
+            return Response(json.dumps({"Message": "Invalid dimension name ", "Dimension": Dimension}))
         df = df.loc[df['dimension_name'] == Dimension]
         Dimensionkeys = df.keys().tolist()
         DimensionValues = df.values.tolist()
@@ -87,7 +87,7 @@ def collect_dimension_keys(request, Response):
                                                   'InputCols': ','.join(DimensionArray),
                                                   'Values': '{}',"DimensionName":DimensionName})
                         else:
-                            return Response(json.dumps({"Message": "Transformer type is not correct", "TransformerType": TranformerType,
+                            return Response(json.dumps({"Message": "Invalid transformer type", "TransformerType": TranformerType,
                                      "Dataset": DimensionName}))
                             print(Transformer,':transformer:::::::::::')
                         KeysMapping(InputKeys, Template, Transformer, Response)
@@ -112,9 +112,9 @@ def collect_dataset_keys(request, Response):
         program_list=df['program'].drop_duplicates().tolist()
         event_list=df['event_name'].drop_duplicates().tolist()
         if Program not in program_list:
-             return Response(json.dumps({"Message":"Program name is not correct","Program":Program}))
+             return Response(json.dumps({"Message":"Invalid program name","Program":Program}))
         if EventName not in event_list:
-             return Response(json.dumps({"Message":"Ingestion name is not correct","IngestionName":EventName}))
+             return Response(json.dumps({"Message":"Invalid ingestion name","IngestionName":EventName}))
         df = df.loc[df['program'] == Program]
         df = df.loc[df['event_name'] == EventName]
         Datasetkeys = df.keys().tolist()
@@ -212,7 +212,7 @@ def collect_dataset_keys(request, Response):
                                                   'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
                                                   'QueryDenominator': PercentageIncrement[1],'QueryNumerator': PercentageIncrement[0]})
                             else:
-                                return Response(json.dumps({"Message": "Transformer type is not correct", "TransformerType": TransformerType,
+                                return Response(json.dumps({"Message": "Invalid transformer type", "TransformerType": TransformerType,
                                      "Dataset": DatasetName}))
                             print(Transformer, ':::::::::::Transformer:::::::::::::::')
                             KeysMapping(InputKeys, Template,Transformer, Response)

@@ -1,4 +1,3 @@
-import json
 from flask import Flask, request, Response
 from transformer_keys_mapping import *
 
@@ -14,7 +13,7 @@ def TransformerGenerator():
         elif operation == 'dimension':
             return collect_dimension_keys(request, Response)
         else:
-            return Response(json.dumps({"Message": "Operation is not correct"}))
+            return Response(json.dumps({"Message": "Invalid operation"}))
     except Exception as error:
         print(error)
         return Response(json.dumps({"Message": "Transformer not created"}))

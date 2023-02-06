@@ -7,7 +7,7 @@ con,cur=db_connection()
 
 def aggTransformer(valueCols={ValueCols}):
     file_check('{KeyFile}','event')
-    df_events = pd.read_csv("/processing_data/{KeyFile}")
+    df_events = pd.read_csv(os.path.dirname(root_path)+"processing_data/{KeyFile}")
     df_dataset=pd.read_sql('select * from {Table};',con=con)
     {DateFilter}
     {YearFilter}

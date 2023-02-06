@@ -19,10 +19,16 @@ def Datainsert(valueCols={ValueCols}):
             query = ''' INSERT INTO {TargetTable}({InputCols}) VALUES ({Values});'''\
             .format(','.join(map(str,values)))
             cur.execute(query)
+            con.commit()
          status_track('{KeyFile}', 'dimension', 'Completed_{DimensionName}')
 
     except Exception as error:
         print(error)
+    finally:
+        if cur is not None:
+            cur.close()
+        if con is not None:
+            con.close()
 
 Datainsert()
 

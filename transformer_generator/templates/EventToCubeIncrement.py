@@ -9,6 +9,7 @@ def aggTransformer(valueCols={ValueCols}):
     df_data = pd.read_csv(os.path.dirname(root_path)+"processing_data/{KeyFile}")
     {DatasetCasting}
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
+    df_dimension.update(df_dimension[{DimColCast}].applymap("'{Values}'".format))
     event_dimension_merge = df_data.merge(df_dimension, on=['{MergeOnCol}'], how='inner')
     df_agg = event_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})
     col_list = df_agg.columns.to_list()

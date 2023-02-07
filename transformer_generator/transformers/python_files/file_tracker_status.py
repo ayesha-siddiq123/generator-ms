@@ -9,7 +9,8 @@ configuartion_path =path + "/config.ini"
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 url = config['CREDs']['server_url']
-
+url=url+'/ingestion/file-status'
+print(url,':::url::::::')
 
 def file_check(KeyFile,ingestion_type):
   if not os.path.exists(os.path.dirname(root_path)+"processing_data/" + KeyFile):

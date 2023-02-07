@@ -13,6 +13,7 @@ def aggTransformer(valueCols={ValueCols}):
     {DateFilter}
     {YearFilter}
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
+    df_dimension.update(df_dimension[{DimColCast}].applymap("'{Values}'".format))
     event_dimension_merge = df_data.merge(df_dimension, on=['{MergeOnCol}'], how='inner')
     event_dimension_merge = event_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})
     event_dimension_merge['{RenameCol}'] = event_dimension_merge['{eventCol}']

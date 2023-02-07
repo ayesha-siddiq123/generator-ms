@@ -177,11 +177,11 @@ def collect_dataset_keys(request, Response):
                                     PercentageIncrement.append('main_table.' + i + '::numeric+{}::numeric')
                             agg_col =Dataset['aggregate']['properties']['columns']['items']['properties']['column']
                             AggCols = (dict(zip(agg_col, (fun * len(agg_col)))))
-                            InputKeys.update({'Values': '{}','DatasetCasting': ','.join(DatasetCasting), 'ValueCols': DatasetArray,
+                            InputKeys.update({'Values': '{}','DatasetCasting': ','.join(DatasetCasting),'ValueCols': DatasetArray,
                                 'DateFilter':','.join(DateFilter),'YearFilter': ','.join(YearFilter),
                                 'GroupBy': Dataset['group_by'],'AggCols': AggCols,'DimensionTable':Dimensions['table']['pattern'],
-                                'DimensionCols': ','.join(Dimensions['column']),'MergeOnCol': Dimensions['merge_on_col']['pattern'],
-                                 'TargetTable': Dataset['aggregate']['properties']['target_table'],
+                                'DimensionCols': ','.join(Dimensions['column']),'DimColCast':json.dumps(Dimensions['column']),'MergeOnCol': Dimensions['merge_on_col']['pattern'],
+                                 'TargetTable': Dataset['aggregate']['properties']['target_table']['pattern'],
                                 'InputCols': ','.join(DatasetArray),'ConflictCols': ','.join(Dataset['group_by']),
                                 'IncrementFormat': ','.join(IncrementFormat),'ReplaceFormat': ','.join(ReplaceFormat),
                                 'UpdateCols': ','.join(UpdateCols * 2),'UpdateCol': ','.join(UpdateCols),

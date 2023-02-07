@@ -1,7 +1,6 @@
 import configparser
 import os
-from sqlalchemy import create_engine
-from urllib.parse import quote
+import psycopg2 as pg
 
 configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/config.ini"
 config = configparser.ConfigParser()
@@ -12,8 +11,9 @@ host = config['CREDs']['db_host']
 user = config['CREDs']['db_user']
 password = config['CREDs']['db_password']
 database = config['CREDs']['database']
+
+
 def db_connection():
-    engine='postgresql://'+user+':%s@'+host+':'+port+'/'+database
-    con=create_engine(engine %quote(password))
-    cur = con.connect()
+    con = pg.connect(database=database, user=user, password=password, host=host, port=port)
+    cur = con.cursor()
     return con ,cur

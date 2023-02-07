@@ -10,11 +10,21 @@
             "dimensions": {
                 "type": "object",
                 "properties": {
-                    "table":  <DimensionTable>,
+                    "table": {
+                        "type": "string",
+                        "pattern": <DimensionTable>
+                    },
                     "column": <DimensionCol>,
-                    "merge_on_col": <MergeOnCol>
+                    "merge_on_col": {
+                        "type": "string",
+                        "pattern": <MergeOnCol>
+                    }
                 },
-                "required": ["table","column","merge_on_col"]
+                "required": [
+                    "table",
+                    "column",
+                    "merge_on_col"
+                ]
             },
             "dataset": {
                 "type": "object",
@@ -33,30 +43,39 @@
                         "type": "object",
                         "properties": {
                             "function": <AggFunction>,
-                            "target_table": <TargetTable>,
-                            "numerator_col": <NumeratorCol>,
-                            "denominator_col": <DenominatorCol>,
-                            "update_cols":  <UpdateCol>,
+                            "target_table": {
+                                "type": "string",
+                                "pattern": <TargetTable>
+                            },
+                            "numerator_col": {
+                                "type": "string",
+                                "pattern": <NumeratorCol>
+                            },
+                            "denominator_col": {
+                                "type": "string",
+                                "pattern": <DenominatorCol>
+                            },
+                            "update_cols": <UpdateCol>,
                             "columns": {
                                 "type": "array",
                                 "shouldnotnull": true,
                                 "items": {
                                     "type": "object",
                                     "properties": {
-                                        "table": <AggColTable>,
-                                        "column":  <AggCol>
+                                        "table": {
+                                            "type": "string",
+                                            "pattern": <AggColTable>
+                                        },
+                                        "column": <AggCol>
                                     },
-                                    "required": ["column"]
+                                    "required": [
+                                        "column"
+                                    ]
                                 }
                             }
                         },
                         "required": [
-                            "function",
-                            "target_table",
-                            "numerator_col",
-                            "denominator_col",
-                            "update_cols",
-                            "columns"
+                            "target_table"
                         ]
                     }
                 },

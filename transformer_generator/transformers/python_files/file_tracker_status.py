@@ -4,18 +4,17 @@ import json
 import configparser
 import os
 path=os.path.dirname(os.path.abspath(__file__))
-
+root_path=os.path.dirname(os.path.dirname(os.path.dirname(path)))
 configuartion_path =path + "/config.ini"
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 url = config['CREDs']['server_url']
+url=url+'/ingestion/file-status'
+print(url,':::url::::::')
 
-def create_folder(folder_name):
-  if not os.path.exists(os.path.dirname(path)+folder_name):
-    os.makedirs(os.path.dirname(path) + folder_name)
 def file_check(KeyFile,ingestion_type):
-  if not os.path.exists(os.path.dirname(path) + "/processing/" + KeyFile):
-    shutil.move(os.path.dirname(path)+'/input/' + KeyFile, os.path.dirname(path)+'/processing/' + KeyFile)
+  if not os.path.exists(os.path.dirname(root_path)+"processing_data/" + KeyFile):
+    shutil.move(os.path.dirname(root_path)+'input_data/' + KeyFile, os.path.dirname(root_path)+'processing_data/' + KeyFile)
     status_track(KeyFile,ingestion_type , 'Processing')
 def status_track(file_name,ingestion_type,status):
   ingestion_name=file_name.strip('.csv')
@@ -30,9 +29,8 @@ def status_track(file_name,ingestion_type,status):
   })
   response = requests.request("PUT", url, headers=headers, data=request)
   re = response.json()
-  if re['ready_to_archive'] == "true":
-    create_folder('/archive')
-    shutil.move(os.path.dirname(path)+'/processing/'+file_name,os.path.dirname(path) +'/archive/'+file_name)
+  if re['ready_to_archive'] == True:
+    shutil.move(os.path.dirname(root_path)+'processing_data/'+file_name,os.path.dirname(root_path)+'archived_data/'+file_name)
 
 
 

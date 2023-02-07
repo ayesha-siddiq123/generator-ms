@@ -22,7 +22,10 @@
                     "aggregate": {
                         "type": "object",
                         "properties": {
-                            "target_table": <TargetTable>
+                            "target_table": {
+                                "type": "string",
+                                "pattern": <TargetTable>
+                            }
                         },
                         "required": [
                             "target_table"

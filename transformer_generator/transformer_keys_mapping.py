@@ -40,7 +40,7 @@ def KeysMapping(InputKeys, Template, Transformer, Response):
         return Response(json.dumps({"Message": "InputKey is empty"}))
 
 InputKeys = {}
-def dimension_data_insert(request, Response):
+def collect_dimension_keys(request, Response):
     Dimension = request.json['ingestion_name']
     KeyFile = request.json['key_file']
     Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + KeyFile
@@ -50,7 +50,7 @@ def dimension_data_insert(request, Response):
         if len(df) == 0:
             return Response(json.dumps({"Message": KeyFile + " is empty"}))
         if Dimension not in dimension_list:
-            return Response(json.dumps({"Message": "Dimension name is not correct", "Dimension": Dimension}))
+            return Response(json.dumps({"Message": "Invalid dimension name ", "Dimension": Dimension}))
         df = df.loc[df['dimension_name'] == Dimension]
         Dimensionkeys = df.keys().tolist()
         DimensionValues = df.values.tolist()
@@ -70,7 +70,7 @@ def dimension_data_insert(request, Response):
                     for record in list(records):
                         DimensionObject = list(record['input']['properties']['dimension']['items']['properties'].keys())
                         DimensionArray=list(record['input']['properties']['dimension']['items']['required'])
-                        TargetTable = list(record['input']['properties']['target_table']['properties'].keys())
+                        TargetTable = record['input']['properties']['target_table']['pattern']
                         string_col_list = []
                         DatasetCasting = []
                         df = pd.json_normalize(record['input']['properties']['dimension']['items']['properties'])
@@ -79,16 +79,15 @@ def dimension_data_insert(request, Response):
                             if (df[col] == "string").item():
                                 string_col_list.append(cols)
                         if len(string_col_list) != 0:
-                                DatasetCasting.append('df_data.update(df_data[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
-
+                                DatasetCasting.append('df_data.update(df_data['+ json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
                         if TransformerType == 'Dataset_Dimension':
-                            InputKeys.update({'ValueCols':DimensionArray, "KeyFile": json.dumps(Dimension + '.csv'),
+                            InputKeys.update({'ValueCols':DimensionArray, "KeyFile": Dimension + '.csv',
                                                   'DatasetCasting': ','.join(DatasetCasting),
-                                                  'TargetTable':','.join(TargetTable),
+                                                  'TargetTable':TargetTable,
                                                   'InputCols': ','.join(DimensionArray),
                                                   'Values': '{}',"DimensionName":DimensionName})
                         else:
-                            return Response(json.dumps({"Message": "Transformer type is not correct", "TransformerType": TranformerType,
+                            return Response(json.dumps({"Message": "Invalid transformer type", "TransformerType": TranformerType,
                                      "Dataset": DimensionName}))
                             print(Transformer,':transformer:::::::::::')
                         KeysMapping(InputKeys, Template, Transformer, Response)
@@ -100,9 +99,7 @@ def dimension_data_insert(request, Response):
     return Response(json.dumps({"Message": "Transformer created successfully", "TransformerFiles": CeatedTransformersList, "code": 200}))
 
 
-
-
-def collect_keys(request, Response):
+def collect_dataset_keys(request, Response):
     KeyFile = request.json['key_file']
     Program = request.json['program']
     EventName = request.json['ingestion_name']
@@ -115,9 +112,9 @@ def collect_keys(request, Response):
         program_list=df['program'].drop_duplicates().tolist()
         event_list=df['event_name'].drop_duplicates().tolist()
         if Program not in program_list:
-             return Response(json.dumps({"Message":"Program name is not correct","Program":Program}))
+             return Response(json.dumps({"Message":"Invalid program name","Program":Program}))
         if EventName not in event_list:
-             return Response(json.dumps({"Message":"Ingestion name is not correct","IngestionName":EventName}))
+             return Response(json.dumps({"Message":"Invalid ingestion name","IngestionName":EventName}))
         df = df.loc[df['program'] == Program]
         df = df.loc[df['event_name'] == EventName]
         Datasetkeys = df.keys().tolist()
@@ -144,22 +141,27 @@ def collect_keys(request, Response):
                     for records in cur.fetchall():
                         for record in list(records):
                             Dataset = record['input']['properties']['dataset']['properties']
-                            DatasetObject = list(Dataset['items']['items']['properties'].keys())
                             DatasetArray=Dataset['items']['items']['required']
                             Dimensions = record['input']['properties']['dimensions']['properties']
-                            NumeratorCol = Dataset['aggregate']['properties']['numerator_col']
-                            DenominatorCol = Dataset['aggregate']['properties']['denominator_col']
+                            NumeratorCol = Dataset['aggregate']['properties']['numerator_col']['pattern']
+                            DenominatorCol = Dataset['aggregate']['properties']['denominator_col']['pattern']
                             fun = Dataset['aggregate']['properties']['function']
                             df = pd.json_normalize(Dataset['items']['items']['properties'])
                             DatasetCasting = []
                             string_col_list = []
-                            for cols in DatasetObject:
+                            for cols in DatasetArray:
                                 col = cols + '.type'
                                 if (df[col] == "string").item():
                                     string_col_list.append(cols)
                             if len(string_col_list) != 0:
-                                DatasetCasting.append('df_agg.update(df_agg[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
-
+                                DatasetCasting.append('df_data.update(df_data[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
+                            DateFilter = []
+                            YearFilter = []
+                            for i in DatasetArray:
+                                if 'date' in i.casefold():
+                                    DateFilter.append('df_dataset = df_dataset.loc[df_dataset[' + json.dumps(i) + '] == date.today()]')
+                                elif 'year' in i.casefold():
+                                    YearFilter.append('df_dataset = df_dataset.loc[df_dataset[' + json.dumps(i) + '] == (date.today()).year]')
                             UpdateCols = []
                             ReplaceFormat = []
                             IncrementFormat = []
@@ -175,41 +177,42 @@ def collect_keys(request, Response):
                                     PercentageIncrement.append('main_table.' + i + '::numeric+{}::numeric')
                             agg_col =Dataset['aggregate']['properties']['columns']['items']['properties']['column']
                             AggCols = (dict(zip(agg_col, (fun * len(agg_col)))))
-                            InputKeys.update({'Values': '{}','DatasetCasting': ','.join(DatasetCasting), 'ValueCols': DatasetArray,
-                                'GroupBy': Dataset['group_by'],'AggCols': AggCols,'DimensionTable':Dimensions['table'],
-                                'DimensionCols': ','.join(Dimensions['column']),'MergeOnCol': Dimensions['merge_on_col'],
-                                 'TargetTable': Dataset['aggregate']['properties']['target_table'],
+                            InputKeys.update({'Values': '{}','DatasetCasting': ','.join(DatasetCasting),'ValueCols': DatasetArray,
+                                'DateFilter':','.join(DateFilter),'YearFilter': ','.join(YearFilter),
+                                'GroupBy': Dataset['group_by'],'AggCols': AggCols,'DimensionTable':Dimensions['table']['pattern'],
+                                'DimensionCols': ','.join(Dimensions['column']),'DimColCast':json.dumps(Dimensions['column']),'MergeOnCol': Dimensions['merge_on_col']['pattern'],
+                                 'TargetTable': Dataset['aggregate']['properties']['target_table']['pattern'],
                                 'InputCols': ','.join(DatasetArray),'ConflictCols': ','.join(Dataset['group_by']),
                                 'IncrementFormat': ','.join(IncrementFormat),'ReplaceFormat': ','.join(ReplaceFormat),
                                 'UpdateCols': ','.join(UpdateCols * 2),'UpdateCol': ','.join(UpdateCols),
-                                "KeyFile": json.dumps(EventName + '.csv'),'DatasetName':DatasetName})
+                                "KeyFile": EventName + '.csv','DatasetName':DatasetName})
+
                             print(Template, '::::::::::::Template::::::::::::')
+
                             if TransformerType in ['EventToCube', 'EventToCubeIncrement']:
                                 InputKeys.update(InputKeys)
                             elif TransformerType in ['EventToCubePer', 'EventToCubePerIncrement']:
                                 InputKeys.update({'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,'AggColOne':agg_col[0],'AggColTwo':agg_col[1],
                                                   'QueryDenominator': PercentageIncrement[1],'QueryNumerator': PercentageIncrement[0]})
-                            elif TransformerType in ['CubeToCube', 'CubeToCubeIncrement']:
-                                table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
-                                InputKeys.update({'Table': table})
-                            elif TransformerType in ['CubeToCubePer', 'CubeToCubePerIncrement', 'E&CToCubePerIncrement',
-                                                    'E&CToCubePer']:
-                                table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
+                            elif TransformerType in ['E&CToCubePerIncrement','E&CToCubePer']:
+                                table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']['pattern']
                                 InputKeys.update({'Table': table,'QueryDenominator': PercentageIncrement[1],
                                      'QueryNumerator': PercentageIncrement[0],"eventCol":agg_col[0],"RenameCol":NumeratorCol,
                                      "NumeratorCol":NumeratorCol,"DenominatorCol":DenominatorCol})
                             elif TransformerType in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement']:
-                                table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']
+                                table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']['pattern']
                                 filter = Dataset['aggregate']['properties']['filters']['properties']
-                                InputKeys.update(
-                                    {'Table': table, 'FilterCol': filter['filter_col'],
-                                     'FilterType':filter['filter_type'],'Filter':filter['filter'],
-                                     'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
-                                     'QueryDenominator': PercentageIncrement[1],
-                                     'QueryNumerator': PercentageIncrement[0]})
+                                InputKeys.update({'Table': table, 'FilterCol': filter['filter_col']['pattern'],'AggCol':agg_col[0],
+                                     'FilterType':filter['filter_type']['pattern'],'Filter':filter['filter']['pattern'],'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
+                                     'QueryDenominator': PercentageIncrement[1],'QueryNumerator': PercentageIncrement[0]})
+                            elif TransformerType in ['EventToCubePerFilterIncrement']:
+                                filter = Dataset['aggregate']['properties']['filters']['properties']
+                                InputKeys.update({'FilterCol': filter['filter_col']['pattern'], 'AggCol': agg_col[0],
+                                                  'FilterType': filter['filter_type']['pattern'], 'Filter': filter['filter']['pattern'],
+                                                  'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
+                                                  'QueryDenominator': PercentageIncrement[1],'QueryNumerator': PercentageIncrement[0]})
                             else:
-                                return Response(json.dumps(
-                                    {"Message": "Transformer type is not correct", "TransformerType": TransformerType,
+                                return Response(json.dumps({"Message": "Invalid transformer type", "TransformerType": TransformerType,
                                      "Dataset": DatasetName}))
                             print(Transformer, ':::::::::::Transformer:::::::::::::::')
                             KeysMapping(InputKeys, Template,Transformer, Response)

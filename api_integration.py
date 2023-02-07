@@ -137,8 +137,8 @@ class SpecUploader:
                   ]
             })
             print("Payload of dimension pipeline is ::;;", payload)
-            # response = requests.request("POST", self.url_base, headers=self.headers, data=payload)
-            # print({"message": response.json(), "Transformer": payload})
+            response = requests.request("POST", self.url_base, headers=self.headers, data=payload)
+            print({"message": response.json(), "Transformer": payload})
 
 
 
@@ -146,10 +146,10 @@ class SpecUploader:
 obj = SpecUploader()
 
 # Call the function using the object reference
-# obj.insert_dimension_spec()
-# obj.insert_dataset_spec()
-# obj.insert_event_spec()
-# obj.create_transformers_dataset()
-# obj.create_transformers_dimension()
-# obj.create_pipeline_dataset()
+obj.insert_dimension_spec()
+obj.insert_dataset_spec()
+obj.insert_event_spec()
+obj.create_transformers_dataset()
+obj.create_transformers_dimension()
+obj.create_pipeline_dataset()
 obj.create_pipeline_dimension()

@@ -61,7 +61,7 @@ class SpecUploader:
                     with open(file, 'r') as f:
                         spec = json.load(f)
                         payload = json.dumps(spec)
-                        response = requests.request("POST", self.url_base, headers=self.headers, data=payload)
+                        response = requests.request("POST", url, headers=self.headers, data=payload)
                         print({"message": response.json(), "Dataset": dataset})
 
 
@@ -116,7 +116,7 @@ class SpecUploader:
                     }
                 ]
             })
-            response = requests.request("POST", self.url_base, headers=self.headers, data=payload)
+            response = requests.request("POST", url, headers=self.headers, data=payload)
             print({"message": response.json(), "Transformer": payload})
 
     def create_pipeline_dimension(self):
@@ -137,7 +137,7 @@ class SpecUploader:
                   ]
             })
             print("Payload of dimension pipeline is ::;;", payload)
-            response = requests.request("POST", self.url_base, headers=self.headers, data=payload)
+            response = requests.request("POST", url, headers=self.headers, data=payload)
             print({"message": response.json(), "Transformer": payload})
 
 

@@ -6,7 +6,7 @@ import configparser
 import pandas as pd
 
 configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/transformer_generator/transformers/python_files/config.ini"
-#print(configuartion_path)
+print(configuartion_path)
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 # Creating the class

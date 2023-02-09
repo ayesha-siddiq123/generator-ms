@@ -12,11 +12,12 @@ def aggTransformer(valueCols={ValueCols}):
     df_agg = event_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})
     col_list = df_agg.columns.to_list()
     df_snap = df_agg[col_list]
+    df_snap.columns=valueCols
     print(df_snap)
     try:
          for index,row in df_snap.iterrows():
             values = []
-            for i in col_list:
+            for i in valueCols:
               values.append(row[i])
             query = ''' INSERT INTO {TargetTable} As main_table({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {IncrementFormat};'''\
             .format(','.join(map(str,values)),{UpdateCol})

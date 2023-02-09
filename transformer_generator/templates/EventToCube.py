@@ -3,7 +3,6 @@ from db_connection import *
 from file_tracker_status import *
 con,cur=db_connection()
 
-
 def aggTransformer(valueCols={ValueCols}):
     file_check('{KeyFile}','event')
     df_event = pd.read_csv(os.path.dirname(root_path)+"processing_data/{KeyFile}")

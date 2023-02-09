@@ -10,7 +10,6 @@ def filterTransformer(valueCols={ValueCols}):
     {DateFilter}
     {YearFilter}
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}',con=con)  ### reading DimensionDataset from Database
-    df_dimension.update(df_dimension[{DimColCast}].applymap("'{Values}'".format))
     dataset_dimension_merge = df_dataset.merge(df_dimension, on=['{MergeOnCol}'],how='inner')  ### mapping dataset with dimension
     df_total = dataset_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})  ### aggregation before filter
     df_total['{DenominatorCol}'] = df_total['{AggCol}']
@@ -20,12 +19,14 @@ def filterTransformer(valueCols={ValueCols}):
     df_agg = df_filter.merge(df_total, on={GroupBy}, how='inner')  ### merging aggregated DataFrames
     df_agg['percentage'] = ((df_agg['{NumeratorCol}'] / df_agg['{DenominatorCol}']) * 100)  ### Calculating Percentage
     df_snap = df_agg[valueCols]
+    print(df_snap)
     try:
         for index, row in df_snap.iterrows():
             values = []
             for i in valueCols:
                 values.append(row[i])
             query = ''' INSERT INTO {TargetTable} As main_table({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {IncrementFormat},percentage=(({QueryNumerator})/({QueryDenominator}))*100;'''.format(','.join(map(str, values)),{UpdateCols})
+            print(query)
             cur.execute(query)
             con.commit()
         status_track('{KeyFile}', 'event', 'Completed_{DatasetName}')

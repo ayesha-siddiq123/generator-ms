@@ -93,7 +93,7 @@ class SpecUploader:
 
 
     def create_pipeline_dataset(self):
-        url = self.url_base + "spec/pipeline"
+        url = self.url_base + "/spec/pipeline"
         data_to_list = self.dataset_mapping.values.tolist()
         for file in data_to_list:
             pipeline = file[1] + '_'
@@ -119,7 +119,7 @@ class SpecUploader:
             print({"message": response.json(), "Transformer": payload})
 
     def create_pipeline_dimension(self):
-        url = self.url_base + "spec/pipeline"
+        url = self.url_base + "/spec/pipeline"
         data_to_list = self.dimension_mapping.values.tolist()
         for file in data_to_list:
             pipeline_name = file[1] + '_details'

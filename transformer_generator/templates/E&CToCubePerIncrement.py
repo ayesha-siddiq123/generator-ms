@@ -19,10 +19,11 @@ def aggTransformer(valueCols={ValueCols}):
     merge_col_list = []
     for i in event_dimension_merge.columns.to_list():
         if i in df_dataset.columns.to_list():
-            df_dataset[i] = "'" + df_dataset[i] + "'"
             merge_col_list.append(i)
+            if type(i) == str:
+                df_dataset[i] = "'" + df_dataset[i] + "'"
     df_agg = event_dimension_merge.merge(df_dataset, on=merge_col_list, how='inner')
-    df_agg['percentage'] = ((df_agg['count_category_wise_schools'] / df_agg['count_school_statistics_total_schools']) * 100)  ### Calculating Percentage
+    df_agg['percentage'] = ((df_agg['{NumeratorCol}'] / df_agg['{DenominatorCol}']) * 100)  ### Calculating Percentage
     df_snap = df_agg[valueCols]
     print(df_snap)
     try:

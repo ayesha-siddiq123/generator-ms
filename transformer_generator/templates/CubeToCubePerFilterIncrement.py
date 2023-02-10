@@ -11,6 +11,8 @@ def filterTransformer(valueCols={ValueCols}):
     {YearFilter}
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}',con=con)  ### reading DimensionDataset from Database
     dataset_dimension_merge = df_dataset.merge(df_dimension, on=['{MergeOnCol}'],how='inner')  ### mapping dataset with dimension
+    string_list = [col for col, dt in df_dataset.dtypes.items() if dt == object]
+    df_dataset.update(df_dataset[string_list].applymap("'{Values}'".format))
     df_total = dataset_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})  ### aggregation before filter
     df_total['{DenominatorCol}'] = df_total['{AggCol}']
     df_filter = dataset_dimension_merge.loc[dataset_dimension_merge['{FilterCol}']{FilterType}{Filter}]  ### applying filter

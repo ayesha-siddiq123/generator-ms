@@ -140,9 +140,9 @@ def collect_dataset_keys(request, Response):
                             YearFilter = []
                             for i in DatasetArray:
                                 if 'date' in i.casefold():
-                                    DateFilter.append('df_dataset = df_dataset.loc[df_dataset[' + json.dumps(i) + '] == date.today()]')
+                                    DateFilter.append('df_dataset = df_dataset.loc[df_dataset[' + json.dumps(i) + '] == str(date.today())]')
                                 elif 'year' in i.casefold():
-                                    YearFilter.append('df_dataset = df_dataset.loc[df_dataset[' + json.dumps(i) + '] == (date.today()).year]')
+                                    YearFilter.append('df_dataset = df_dataset.loc[df_dataset[' + json.dumps(i) + '] == str((date.today()).year)]')
                             UpdateCols = []
                             ReplaceFormat = []
                             IncrementFormat = []

@@ -68,21 +68,11 @@ def collect_dimension_keys(request, Response):
             if cur.rowcount == 1:
                 for records in cur.fetchall():
                     for record in list(records):
-                        DimensionObject = list(record['input']['properties']['dimension']['items']['properties'].keys())
                         DimensionArray=list(record['input']['properties']['dimension']['items']['required'])
                         TargetTable = record['input']['properties']['target_table']['pattern']
-                        string_col_list = []
-                        DatasetCasting = []
-                        df = pd.json_normalize(record['input']['properties']['dimension']['items']['properties'])
-                        for cols in DimensionObject:
-                            col = cols + '.type'
-                            if (df[col] == "string").item():
-                                string_col_list.append(cols)
-                        if len(string_col_list) != 0:
-                                DatasetCasting.append('df_data.update(df_data['+ json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
+
                         if TransformerType == 'Dataset_Dimension':
                             InputKeys.update({'ValueCols':DimensionArray, "KeyFile": Dimension + '.csv',
-                                                  'DatasetCasting': ','.join(DatasetCasting),
                                                   'TargetTable':TargetTable,
                                                   'InputCols': ','.join(DimensionArray),
                                                   'Values': '{}',"DimensionName":DimensionName})
@@ -146,15 +136,6 @@ def collect_dataset_keys(request, Response):
                             NumeratorCol = Dataset['aggregate']['properties']['numerator_col']['pattern']
                             DenominatorCol = Dataset['aggregate']['properties']['denominator_col']['pattern']
                             fun = Dataset['aggregate']['properties']['function']
-                            df = pd.json_normalize(Dataset['items']['items']['properties'])
-                            DatasetCasting = []
-                            string_col_list = []
-                            for cols in DatasetArray:
-                                col = cols + '.type'
-                                if (df[col] == "string").item():
-                                    string_col_list.append(cols)
-                            if len(string_col_list) != 0:
-                                DatasetCasting.append('df_data.update(df_data[' + json.dumps(string_col_list) + '].applymap("\'{}\'".format))')
                             DateFilter = []
                             YearFilter = []
                             for i in DatasetArray:
@@ -177,8 +158,7 @@ def collect_dataset_keys(request, Response):
                                     PercentageIncrement.append('main_table.' + i + '::numeric+{}::numeric')
                             agg_col =Dataset['aggregate']['properties']['columns']['items']['properties']['column']
                             AggCols = (dict(zip(agg_col, (fun * len(agg_col)))))
-                            InputKeys.update({'Values': '{}','DatasetCasting': ','.join(DatasetCasting),'ValueCols': DatasetArray,
-                                'DateFilter':','.join(DateFilter),'YearFilter': ','.join(YearFilter),
+                            InputKeys.update({'Values': '{}','ValueCols': DatasetArray,'DateFilter':','.join(DateFilter),'YearFilter': ','.join(YearFilter),
                                 'GroupBy': Dataset['group_by'],'AggCols': AggCols,'DimensionTable':Dimensions['table']['pattern'],
                                 'DimensionCols': ','.join(Dimensions['column']),'DimColCast':json.dumps(Dimensions['column']),'MergeOnCol': Dimensions['merge_on_col']['pattern'],
                                  'TargetTable': Dataset['aggregate']['properties']['target_table']['pattern'],
@@ -191,20 +171,24 @@ def collect_dataset_keys(request, Response):
 
                             if TransformerType in ['EventToCube', 'EventToCubeIncrement']:
                                 InputKeys.update(InputKeys)
+
                             elif TransformerType in ['EventToCubePer', 'EventToCubePerIncrement']:
                                 InputKeys.update({'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,'AggColOne':agg_col[0],'AggColTwo':agg_col[1],
                                                   'QueryDenominator': PercentageIncrement[1],'QueryNumerator': PercentageIncrement[0]})
+
                             elif TransformerType in ['E&CToCubePerIncrement','E&CToCubePer']:
                                 table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']['pattern']
                                 InputKeys.update({'Table': table,'QueryDenominator': PercentageIncrement[1],
                                      'QueryNumerator': PercentageIncrement[0],"eventCol":agg_col[0],"RenameCol":NumeratorCol,
                                      "NumeratorCol":NumeratorCol,"DenominatorCol":DenominatorCol})
+
                             elif TransformerType in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement']:
                                 table = Dataset['aggregate']['properties']['columns']['items']['properties']['table']['pattern']
                                 filter = Dataset['aggregate']['properties']['filters']['properties']
                                 InputKeys.update({'Table': table, 'FilterCol': filter['filter_col']['pattern'],'AggCol':agg_col[0],
                                      'FilterType':filter['filter_type']['pattern'],'Filter':filter['filter']['pattern'],'NumeratorCol': NumeratorCol, 'DenominatorCol': DenominatorCol,
                                      'QueryDenominator': PercentageIncrement[1],'QueryNumerator': PercentageIncrement[0]})
+
                             elif TransformerType in ['EventToCubePerFilterIncrement']:
                                 filter = Dataset['aggregate']['properties']['filters']['properties']
                                 InputKeys.update({'FilterCol': filter['filter_col']['pattern'], 'AggCol': agg_col[0],

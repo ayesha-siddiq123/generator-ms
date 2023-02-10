@@ -11,6 +11,8 @@ def aggTransformer(valueCols={ValueCols}):
     df_dataset = pd.read_sql('select * from {Table};', con=con)
     {DateFilter}
     {YearFilter}
+    string_list = [col for col, dt in df_dataset.dtypes.items() if dt == object]
+    df_dataset.update(df_dataset[string_list].applymap("'{Values}'".format))
     df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
     df_dimension.update(df_dimension[{DimColCast}].applymap("'{Values}'".format))
     event_dimension_merge = df_event.merge(df_dimension, on=['{MergeOnCol}'], how='inner')
@@ -19,7 +21,6 @@ def aggTransformer(valueCols={ValueCols}):
     merge_col_list = []
     for i in event_dimension_merge.columns.to_list():
         if i in df_dataset.columns.to_list():
-            df_dataset[i] = "'" + df_dataset[i] + "'"
             merge_col_list.append(i)
     df_agg = event_dimension_merge.merge(df_dataset, on=merge_col_list, how='inner')
     df_agg['percentage'] = ((df_agg['count_category_wise_schools'] / df_agg['count_school_statistics_total_schools']) * 100)  ### Calculating Percentage

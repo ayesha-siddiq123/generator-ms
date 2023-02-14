@@ -13,7 +13,7 @@ def aggTransformer(valueCols={ValueCols}):
     {YearFilter}
     string_list = [col for col, dt in df_dataset.dtypes.items() if dt == object]
     df_dataset.update(df_dataset[string_list].applymap("'{Values}'".format))
-    df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con)
+    df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}', con=con).drop_duplicates()
     df_dimension.update(df_dimension[{DimColCast}].applymap("'{Values}'".format))
     event_dimension_merge = df_event.merge(df_dimension, on=['{MergeOnCol}'], how='inner')
     event_dimension_merge = event_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})

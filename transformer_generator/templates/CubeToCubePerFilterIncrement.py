@@ -9,7 +9,7 @@ def filterTransformer(valueCols={ValueCols}):
     df_dataset  = pd.read_sql('select * from {Table}', con=con)
     {DateFilter}
     {YearFilter}
-    df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}',con=con)  ### reading DimensionDataset from Database
+    df_dimension = pd.read_sql('select {DimensionCols} from {DimensionTable}',con=con).drop_duplicates() ### reading DimensionDataset from Database
     dataset_dimension_merge = df_dataset.merge(df_dimension, on=['{MergeOnCol}'],how='inner')  ### mapping dataset with dimension
     df_total = dataset_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})  ### aggregation before filter
     df_total['{DenominatorCol}'] = df_total['{AggCol}']

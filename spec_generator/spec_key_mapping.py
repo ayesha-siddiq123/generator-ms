@@ -140,6 +140,9 @@ def DimensionSpec(request, Response):
         df_dimension = pd.read_csv(DimensionPath)
         if len(df_dimension) == 0:
             return Response(json.dumps({"Message": DimensionKeys + " is empty"}))
+        program_list=df_dimension['program'].drop_duplicates().tolist()
+        if Program not in program_list:
+             return Response(json.dumps({"Message":"Invalid program name","Program":Program}))
         df_dimension = df_dimension.loc[df_dimension['program'] == Program]
         DimensionCol = df_dimension.keys().tolist()
         DimensionValues = df_dimension.values.tolist()

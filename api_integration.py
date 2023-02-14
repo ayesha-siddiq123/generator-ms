@@ -15,11 +15,25 @@ class SpecUploader:
         self.headers = {
             'Content-Type': 'application/json'
         }
-        self.dataset_mapping = pd.read_csv(os.path.dirname(
-            os.path.abspath(__file__)) + "/transformer_generator/key_files/transformer_dataset_mapping.csv")
-        self.dimension_mapping = pd.read_csv(os.path.dirname(
-            os.path.abspath(__file__)) + "/transformer_generator/key_files/transformer_dimension_mapping.csv")
+        self.dataset_mapping = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + "/transformer_generator/key_files/transformer_dataset_mapping.csv")
+        self.dimension_mapping = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + "/transformer_generator/key_files/transformer_dimension_mapping.csv")
         self.program = self.dataset_mapping['program'].drop_duplicates().tolist()
+        self.key_files=['dataset_keys','event_keys','dimension_keys']
+        self.spec_type=['DatasetSpec','EventSpec','DimensionSpec']
+
+    def generate_spec(self):
+        url = self.url_base + "/generator/spec"
+        for program in self.program:
+            for key_file,spec_type in self.key_files,self.spec_type:
+                payload = json.dumps({
+                    'key_file':key_file,
+                    'spec_type':spec_type,
+                    'validation_keys':'additional_validation.csv',
+                    'program':program
+                })
+                response = requests.request("POST", url, headers=self.headers, data=payload)
+                print({"message": response.json(), "Transformer": payload})
+
 
     def insert_dimension_spec(self):
         for i in self.program:
@@ -64,8 +78,8 @@ class SpecUploader:
                         print({"message": response.json(), "Dataset": dataset})
 
 
-    def create_transformers_dataset(self):
-        url = self.url_base + "/spec/pipeline"
+    def generate_dataset_transformers(self):
+        url = self.url_base + "/spec/generator"
         data_to_list = self.dataset_mapping[['program','event_name']].drop_duplicates().values.tolist()
         for file in data_to_list:
             payload = json.dumps({
@@ -77,8 +91,8 @@ class SpecUploader:
             response = requests.request("POST", url, headers=self.headers, data=payload)
             print({"message": response.json(), "Transformer": payload})
 
-    def create_transformers_dimension(self):
-        url = self.url_base + "/spec/pipeline"
+    def generate_dimension_transformers(self):
+        url = self.url_base + "/spec/generator"
         data_to_list = self.dimension_mapping.values.tolist()
         for file in data_to_list:
              payload = json.dumps({
@@ -145,10 +159,11 @@ class SpecUploader:
 obj = SpecUploader()
 
 # Call the function using the object reference
+obj.generate_spec()
 obj.insert_dimension_spec()
 obj.insert_dataset_spec()
 obj.insert_event_spec()
-obj.create_transformers_dataset()
-obj.create_transformers_dimension()
+obj.generate_dataset_transformers()
+obj.generate_dimension_transformers()
 obj.create_pipeline_dataset()
 obj.create_pipeline_dimension()

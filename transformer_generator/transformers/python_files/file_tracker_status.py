@@ -17,7 +17,7 @@ def file_check(KeyFile,ingestion_type):
     shutil.move(os.path.dirname(root_path)+'input_data/' + KeyFile, os.path.dirname(root_path)+'processing_data/' + KeyFile)
     status_track(KeyFile,ingestion_type , 'Processing')
 def status_track(file_name,ingestion_type,status):
-  ingestion_name=file_name.strip('.csv')
+  ingestion_name=file_name.split('.')[0]
   headers = {
     'Content-Type': 'application/json'
   }
@@ -27,8 +27,10 @@ def status_track(file_name,ingestion_type,status):
     "ingestion_name": ingestion_name,
     "status":status
   })
+  print(request,'::::request body:::::::::::::')
   response = requests.request("PUT", url, headers=headers, data=request)
   re = response.json()
+  print(re,':::::::::::response:::::::::::::::')
   if re['ready_to_archive'] == True:
     shutil.move(os.path.dirname(root_path)+'processing_data/'+file_name,os.path.dirname(root_path)+'archived_data/'+file_name)
 

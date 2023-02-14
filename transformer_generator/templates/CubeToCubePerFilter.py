@@ -9,8 +9,7 @@ def filterTransformer(valueCols={ValueCols}):
     df_dataset = pd.read_sql('select * from {Table}', con=con)                                     ### reading dataset from database
     {DateFilter}
     {YearFilter}
-    df_dimension=pd.read_sql('select {DimensionCols} from {DimensionTable}',con=con)                ### reading DimensionDataset from Database
-    df_dimension.update(df_dimension[{DimColCast}].applymap("'{Values}'".format))
+    df_dimension=pd.read_sql('select {DimensionCols} from {DimensionTable}',con=con).drop_duplicates()             ### reading DimensionDataset from Database
     dataset_dimension_merge = df_dataset.merge(df_dimension, on=['{MergeOnCol}'], how='inner')                 ### mapping dataset with dimension
     df_total = dataset_dimension_merge.groupby({GroupBy}, as_index=False).agg({AggCols})            ### aggregation before filter
     df_total['{DenominatorCol}'] = df_total['{AggCol}']
@@ -19,13 +18,16 @@ def filterTransformer(valueCols={ValueCols}):
     df_filter['{NumeratorCol}'] = df_filter['{AggCol}']
     df_agg = df_filter.merge(df_total, on={GroupBy}, how='inner')  ### merging aggregated DataFrames
     df_agg['percentage'] = ((df_agg['{NumeratorCol}'] / df_agg['{DenominatorCol}']) * 100)  ### Calculating Percentage
+    {DatasetCasting}
     df_snap = df_agg[valueCols]
+    print(df_snap)
     try:
         for index, row in df_snap.iterrows():
             values = []
             for i in valueCols:
                 values.append(row[i])
             query = ''' INSERT INTO {TargetTable}({InputCols}) VALUES ({Values}) ON CONFLICT ({ConflictCols}) DO UPDATE SET {ReplaceFormat};'''.format(','.join(map(str, values)))
+            print(query)
             cur.execute(query)
             con.commit()
         status_track('{KeyFile}', 'event', 'Completed_{DatasetName}')

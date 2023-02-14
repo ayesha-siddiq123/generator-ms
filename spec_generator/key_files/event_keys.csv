@@ -1,8 +1,8 @@
 program,event_name,event_col,event_datatype
 SAC,event_students_attendance,"date,school_id,school_category,grade,gender,total_students,students_attendance_marked,students_marked_present","string,string,string,integer,string,integer,integer,integer"
 SAC,event_teachers_attendance,"date,school_id,school_category,grade,total_teachers,teachers_attendance_marked,teachers_marked_present","string,string,string,integer,integer,integer,integer"
-School_Statistics,event_school_statistics_students,"academic_year,school_id,school_category,grade,gender,student_category,students_enrolled,cwsn_enrolled","integer,string,string,integer,string,string,integer,integer"
-School_Statistics,event_school_statistics_teachers,"academic_year,school_id,school_category,grade,total_teachers,students_enrolled","integer,string,string,integer,integer,integer"
+Scl_Stats,event_school_statistics_students,"academic_year,school_id,school_category,grade,gender,student_category,students_enrolled,cwsn_enrolled","string,string,string,integer,string,string,integer,integer"
+Scl_Stats,event_school_statistics_teachers,"academic_year,school_id,school_category,grade,total_teachers,students_enrolled","string,string,string,integer,integer,integer"
 Review_Monitoring,event_review_cluster,"date, cluster_id, meeting_conducted","string, string, integer"
 Review_Monitoring,event_review_block,"date, block_id,meeting_conducted","string, string, integer"
 Review_Monitoring,event_review_district,"date, district_id, meeting_conducted","string, string, integer"

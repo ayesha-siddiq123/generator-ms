@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: adding db creds
-      run: sed -i 's/database_host/${{secrets.DB_HOST}}/g;s/database_port/${{secrets.DB_PORT}}/g;s/database_name/${{secrets.DATABASE}}/g;s/database_user/${{secrets.DB_USER}}/g;s/database_password/${{secrets.DB_PASSWORD}}/g' config.ini
+      run: sed -i 's/database_host/${{secrets.DB_HOST}}/g;s/database_port/${{secrets.DB_PORT}}/g;s/database_name/${{secrets.DATABASE}}/g;s/database_user/${{secrets.DB_USER}}/g;s/database_password/${{secrets.DB_PASSWORD}}/g;s#database_url#${{secrets.QA_SERVER_URL}}#g' config.ini
       shell: bash 
 
     - name: Docker Login

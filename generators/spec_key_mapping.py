@@ -20,7 +20,7 @@ def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
     if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/' + Program + '/' + SpecFile):
         os.remove(os.path.dirname(os.path.abspath(__file__)) + '/' + Program + '/' + SpecFile)
     #### reading grammar template
-    with open(os.path.dirname(os.path.abspath(__file__)) + '/template/' + SpecTemplate, 'r') as fs:
+    with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + SpecTemplate, 'r') as fs:
         ValueOfTemplate = fs.readlines()
     if (len(InputKeys) != 0):
         ### iterating lines in the template

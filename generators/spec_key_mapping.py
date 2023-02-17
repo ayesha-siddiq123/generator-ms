@@ -14,8 +14,8 @@ def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
     SpecFile = SpecFile + '.json'
     Program = Program + '_Specs'
     ### creating folder with program name
-    if not os.path.exists(Program):
-        os.makedirs(Program)
+    if not os.path.exists(os.path.dirname(os.path.abspath(__file__))+'/'+Program):
+        os.makedirs(os.path.dirname(os.path.abspath(__file__))+'/'+Program)
     #### deleting Grammar file if already exists with the same name
     if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/' + Program + '/' + SpecFile):
         os.remove(os.path.dirname(os.path.abspath(__file__)) + '/' + Program + '/' + SpecFile)

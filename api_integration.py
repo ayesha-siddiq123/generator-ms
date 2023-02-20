@@ -4,7 +4,7 @@ import os
 import requests
 import configparser
 import pandas as pd
-
+import time
 configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/generators/transformers/python_files/config.ini"
 config = configparser.ConfigParser()
 config.read(configuartion_path);
@@ -32,6 +32,7 @@ class SpecUploader:
                 })
                 response = requests.request("POST", url, headers=self.headers, data=payload)
                 print({"message": response.json(), "Transformer": payload})
+                time.sleep(0.5)
 
     def insert_dimension_spec(self):
         for i in self.program:
@@ -46,6 +47,7 @@ class SpecUploader:
                     payload = json.dumps(spec)
                     response = requests.request("POST", url, headers=self.headers, data=payload)
                     print({"message": response.json(), "Dimension": dimension})
+                    time.sleep(0.5)
 
     def insert_event_spec(self):
         for i in self.program:
@@ -60,6 +62,7 @@ class SpecUploader:
                     payload = json.dumps(spec)
                     response = requests.request("POST", url, headers=self.headers, data=payload)
                     print({"message": response.json(), "Event": event})
+                    time.sleep(0.5)
 
     def insert_dataset_spec(self):
         for i in self.program:
@@ -74,6 +77,7 @@ class SpecUploader:
                         payload = json.dumps(spec)
                         response = requests.request("POST", url, headers=self.headers, data=payload)
                         print({"message": response.json(), "Dataset": dataset})
+                        time.sleep(0.5)
 
 
     def generate_dataset_transformers(self):
@@ -88,6 +92,7 @@ class SpecUploader:
             })
             response = requests.request("POST", url, headers=self.headers, data=payload)
             print({"message": response.json(), "Transformer": payload})
+            time.sleep(0.5)
 
     def generate_dimension_transformers(self):
         url = self.url_base + "/spec/transformer"
@@ -101,6 +106,7 @@ class SpecUploader:
                       })
              response = requests.request("POST", url, headers=self.headers, data=payload)
              print({"message": response.json(), "Transformer": payload})
+             time.sleep(0.5)
 
 
 
@@ -117,7 +123,7 @@ class SpecUploader:
                 dimension_name = 'dimension' + '_' + 'master'
             payload = json.dumps({
                 "pipeline_type": "ingest_to_db",
-                "pipeline_name": pipeline_name,
+                "pipeline_name": file[3],
                 "pipeline": [
                     {
                         "event_name": file[2],
@@ -129,6 +135,7 @@ class SpecUploader:
             })
             response = requests.request("POST", url, headers=self.headers, data=payload)
             print({"message": response.json(), "Transformer": payload})
+            time.sleep(0.5)
 
     def create_pipeline_dimension(self):
         url = self.url_base + "/spec/pipeline"
@@ -138,7 +145,7 @@ class SpecUploader:
             payload = json.dumps(
                 {
                    "pipeline_type":"dimension_to_db",
-                   "pipeline_name":pipeline_name,
+                   "pipeline_name":file[1],
                    "pipeline": [
                     {
                       "dimension_name": file[1],
@@ -150,6 +157,7 @@ class SpecUploader:
             print("Payload of dimension pipeline is ::;;", payload)
             response = requests.request("POST", url, headers=self.headers, data=payload)
             print({"message": response.json(), "Transformer": payload})
+            time.sleep(0.5)
 
 
 

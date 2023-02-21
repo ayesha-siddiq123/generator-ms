@@ -109,3 +109,4 @@ generators/__pycache__/*
 generators/transformers/python_files/config.ini
 generators/transformers/python_files/__pycache__/*
 .idea/*
+.github/workflows

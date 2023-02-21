@@ -170,6 +170,10 @@ class APIsIntegrator:
             response = requests.request("POST", url, headers=self.headers, data=payload)
             print({"message": response.json(), "Scheduler": payload})
             time.sleep(0.5)
+    def static_processor_group_creation(self):
+        url = self.url_base +'/static_processor_group_creation'
+        response = requests.request("POST", url, headers=self.headers)
+        print({"message": response.json()})
 
 # Creating the object of the class
 obj = APIsIntegrator()
@@ -181,6 +185,7 @@ obj.insert_event_spec()
 obj.insert_dataset_spec()
 obj.generate_dimension_transformers()
 obj.generate_dataset_transformers()
+obj.static_processor_group_creation()
 obj.create_pipeline_dimension()
 obj.create_pipeline_dataset()
 obj.schedule_dimension()

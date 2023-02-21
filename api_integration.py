@@ -9,7 +9,7 @@ configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/generators/t
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 # Creating the class
-class SpecUploader:
+class APIsIntegrator:
     def __init__(self):
         self.url_base = config['CREDs']['server_url']
         self.headers = {
@@ -79,7 +79,6 @@ class SpecUploader:
                         print({"message": response.json(), "Dataset": dataset})
                         time.sleep(0.5)
 
-
     def generate_dataset_transformers(self):
         url = self.url_base + "/spec/transformer"
         data_to_list = self.dataset_mapping[['program','event_name']].drop_duplicates().values.tolist()
@@ -109,18 +108,10 @@ class SpecUploader:
              time.sleep(0.5)
 
 
-
     def create_pipeline_dataset(self):
         url = self.url_base + "/spec/pipeline"
         data_to_list = self.dataset_mapping.values.tolist()
         for file in data_to_list:
-            pipeline = file[1] + '_'
-            pipeline_name = file[3].replace(pipeline, "")
-            dimension_name = file[3].split('_')[-1]
-            if dimension_name == 'grade' or dimension_name == 'school':
-                dimension_name = 'dimension' + '_' + 'school'
-            else:
-                dimension_name = 'dimension' + '_' + 'master'
             payload = json.dumps({
                 "pipeline_type": "ingest_to_db",
                 "pipeline_name": file[3],
@@ -128,20 +119,19 @@ class SpecUploader:
                     {
                         "event_name": file[2],
                         "dataset_name": file[3],
-                        "dimension_name": dimension_name,
+                        "dimension_name": file[4],
                         "transformer_name": file[3] + '.py'
                     }
                 ]
             })
             response = requests.request("POST", url, headers=self.headers, data=payload)
-            print({"message": response.json(), "Transformer": payload})
+            print({"message": response.json(), "Pipeline": payload})
             time.sleep(0.5)
 
     def create_pipeline_dimension(self):
         url = self.url_base + "/spec/pipeline"
         data_to_list = self.dimension_mapping.values.tolist()
         for file in data_to_list:
-            pipeline_name = file[1] + '_details'
             payload = json.dumps(
                 {
                    "pipeline_type":"dimension_to_db",
@@ -156,20 +146,42 @@ class SpecUploader:
             })
             print("Payload of dimension pipeline is ::;;", payload)
             response = requests.request("POST", url, headers=self.headers, data=payload)
-            print({"message": response.json(), "Transformer": payload})
+            print({"message": response.json(), "Pipeline": payload})
+            time.sleep(0.5)
+    def schedule_dimension(self):
+        url=self.url_base+'/spec/schedule'
+        dimension_schedule = self.dimension_mapping[['dimension_name','scheduler']].drop_duplicates().tolist()
+        for ds in dimension_schedule:
+            payload=json.dumps({
+                 "pipeline_name":ds[0],
+                 "scheduled_at": ds[1],
+            })
+            response = requests.request("POST", url, headers=self.headers, data=payload)
+            print({"message": response.json(), "Scheduler": payload})
+            time.sleep(0.5)
+    def schedule_dataset(self):
+        url=self.url_base+'/spec/schedule'
+        dataset_schedule = self.dataset_mapping[['dataset_name','scheduler']].drop_duplicates().tolist()
+        for ds in dataset_schedule:
+            payload=json.dumps({
+                 "pipeline_name":ds[0],
+                 "scheduled_at": ds[1],
+            })
+            response = requests.request("POST", url, headers=self.headers, data=payload)
+            print({"message": response.json(), "Scheduler": payload})
             time.sleep(0.5)
 
-
-
 # Creating the object of the class
-obj = SpecUploader()
+obj = APIsIntegrator()
 
 # Call the function using the object reference
 obj.generate_spec()
 obj.insert_dimension_spec()
-obj.insert_dataset_spec()
 obj.insert_event_spec()
-obj.generate_dataset_transformers()
+obj.insert_dataset_spec()
 obj.generate_dimension_transformers()
-obj.create_pipeline_dataset()
+obj.generate_dataset_transformers()
 obj.create_pipeline_dimension()
+obj.create_pipeline_dataset()
+obj.schedule_dimension()
+obj.schedule_dataset()

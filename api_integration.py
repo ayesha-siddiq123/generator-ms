@@ -21,7 +21,7 @@ class APIsIntegrator:
         self.keys_types=[['dataset_keys','DatasetSpec'],['event_keys','EventSpec'],['dimension_keys','DimensionSpec']]
 
     def generate_spec(self):
-        url = self.url_base + "/generator/spec"
+        url = self.url_base + "/api/generator/spec"
         for program in self.program:
             for kt in self.keys_types:
                 payload = json.dumps({
@@ -171,7 +171,7 @@ class APIsIntegrator:
             print({"message": response.json(), "Scheduler": payload})
             time.sleep(0.5)
     def static_processor_group_creation(self):
-        url = self.url_base +'/static_processor_group_creation'
+        url = self.url_base +'/api/static_processor_group_creation'
         response = requests.request("POST", url, headers=self.headers)
         print({"message": response.json()})
 

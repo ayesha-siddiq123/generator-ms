@@ -8,7 +8,7 @@ from add_static_processor_group import *
 app = Flask(__name__)
 
 
-@app.route('/static_processor_group_creation', methods=['POST'])
+@app.route('/api/static_processor_group_creation', methods=['POST'])
 def create_processor_group():
     try:
         add_pg_file_moving = call_file_moving_pg('File_moving')
@@ -21,7 +21,7 @@ def create_processor_group():
         print(error)
         return Response(json.dumps({"Message": "Processor group not created"}))
 
-@app.route('/generator', methods=['POST'])
+@app.route('/api/generator', methods=['POST'])
 def TransformerGenerator():
     operation = request.json['operation']
     try:
@@ -34,7 +34,7 @@ def TransformerGenerator():
     except Exception as error:
         print(error)
         return Response(json.dumps({"Message": "Transformer not created"}))
-@app.route('/generator/spec',methods=['POST'])
+@app.route('/api/generator/spec',methods=['POST'])
 def SpecGenerator():
     spec_type=request.json['spec_type']
     try:

@@ -1,7 +1,7 @@
-transformer_template,dimension_name
-Dataset_Dimension,dimension_master
-Dataset_Dimension,dimension_school
-Dataset_Dimension,dimension_cluster
-Dataset_Dimension,dimension_block
-Dataset_Dimension,dimension_district
-Dataset_Dimension,dimension_state
+transformer_template,dimension_name,scheduler
+Dataset_Dimension,dimension_master,0 0/1 * 1/1 * ? *
+Dataset_Dimension,dimension_school,0 0/1 * 1/1 * ? *
+Dataset_Dimension,dimension_cluster,0 0/1 * 1/1 * ? *
+Dataset_Dimension,dimension_block,0 0/1 * 1/1 * ? *
+Dataset_Dimension,dimension_district,0 0/1 * 1/1 * ? *
+Dataset_Dimension,dimension_state,0 0/1 * 1/1 * ? *

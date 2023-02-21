@@ -19,8 +19,6 @@ database = config['CREDs']['database']
 CeatedTransformersList = []
 
 def KeysMapping(InputKeys, Template, Transformer, Response):
-    if not (os.path.exists(os.path.dirname(os.path.abspath(__file__))+ "/transformers/python_files")):
-        os.makedirs(os.path.dirname(os.path.abspath(__file__)) + "/transformers/python_files")
     if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/transformers/python_files/' + Transformer):
         os.remove(os.path.dirname(os.path.abspath(__file__)) + '/transformers/python_files/' + Transformer)
     with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + Template, 'r') as fs:

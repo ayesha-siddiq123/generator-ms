@@ -36,8 +36,9 @@ class APIsIntegrator:
 
     def insert_dimension_spec(self):
         for i in self.program:
-            dimension_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/spec_generator/'+i+'_Specs/' + '*.json')
+            dimension_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
             url = self.url_base + "/api/spec/dimension"
+            print(dimension_spec_files,'here::::::::::')
             for file in dimension_spec_files:
                 dimension = file.split('/')[-1].strip('.json')
                 slice = dimension.split('_')[0]
@@ -51,7 +52,7 @@ class APIsIntegrator:
 
     def insert_event_spec(self):
         for i in self.program:
-            event_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/spec_generator/'+i+'_Specs/' + '*.json')
+            event_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
             url = self.url_base + "/api/spec/event"
             for file in event_spec_files:
                 event = file.split('/')[-1].strip('.json')
@@ -67,7 +68,7 @@ class APIsIntegrator:
     def insert_dataset_spec(self):
         for i in self.program:
             url = self.url_base + "/api/spec/dataset"
-            dataset_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/spec_generator/'+i+'_Specs/' + '*.json')
+            dataset_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
             for file in dataset_spec_files:
                 dataset = file.split('/')[-1].strip('.json')
                 slice = dataset.split('_')[0]
@@ -150,7 +151,7 @@ class APIsIntegrator:
             time.sleep(0.5)
     def schedule_dimension(self):
         url=self.url_base+'/api/spec/schedule'
-        dimension_schedule = self.dimension_mapping[['dimension_name','scheduler']].drop_duplicates().tolist()
+        dimension_schedule = self.dimension_mapping[['dimension_name','scheduler']].drop_duplicates().values.tolist()
         for ds in dimension_schedule:
             payload=json.dumps({
                  "pipeline_name":ds[0],
@@ -161,7 +162,7 @@ class APIsIntegrator:
             time.sleep(0.5)
     def schedule_dataset(self):
         url=self.url_base+'/api/spec/schedule'
-        dataset_schedule = self.dataset_mapping[['dataset_name','scheduler']].drop_duplicates().tolist()
+        dataset_schedule = self.dataset_mapping[['dataset_name','scheduler']].drop_duplicates().values.tolist()
         for ds in dataset_schedule:
             payload=json.dumps({
                  "pipeline_name":ds[0],

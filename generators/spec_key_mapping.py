@@ -3,10 +3,13 @@ import os
 import re
 from datetime import date
 import pandas as pd
-
+import glob
+root_path=os.path.dirname(os.path.abspath(__file__))
 ##### Getting todays Date
 todays_date = date.today()
-
+SpecTemplatePath=glob.glob(root_path+'/templates/*.json')
+SpecTemplateList=[spec.split('/')[-1].split('.')[0] for spec in SpecTemplatePath]
+print(SpecTemplateList)
 CreatedSpecList = []
 
 def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
@@ -14,13 +17,13 @@ def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
     SpecFile = SpecFile + '.json'
     Program = Program + '_Specs'
     ### creating folder with program name
-    if not os.path.exists(os.path.dirname(os.path.abspath(__file__))+'/'+Program):
-        os.makedirs(os.path.dirname(os.path.abspath(__file__))+'/'+Program)
+    if not os.path.exists(root_path+'/'+Program):
+        os.makedirs(root_path+'/'+Program)
     #### deleting Grammar file if already exists with the same name
-    if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/' + Program + '/' + SpecFile):
-        os.remove(os.path.dirname(os.path.abspath(__file__)) + '/' + Program + '/' + SpecFile)
+    if os.path.exists(root_path + '/' + Program + '/' + SpecFile):
+        os.remove(root_path + '/' + Program + '/' + SpecFile)
     #### reading grammar template
-    with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + SpecTemplate, 'r') as fs:
+    with open(root_path + '/templates/' + SpecTemplate, 'r') as fs:
         ValueOfTemplate = fs.readlines()
     if (len(InputKeys) != 0):
         ### iterating lines in the template
@@ -55,8 +58,7 @@ def EventSpec(request, Response):
     ValidationKeys = request.json['validation_keys']
     ########## Reading additional validation csv file ###########
     try:
-        Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + ValidationKeys
-        df_validation = pd.read_csv(Path)
+        df_validation = pd.read_csv(root_path+ "/key_files/" + ValidationKeys)
         ### Dataframe empty check
         if len(df_validation) == 0:
             return Response(json.dumps({"Message": ValidationKeys + " is empty"}))
@@ -71,8 +73,7 @@ def EventSpec(request, Response):
         validation_dict = (dict(zip(ValidationColList, ValidationList)))
 
         ########## Reading  Eventtkeys csv file #################
-        EventPath = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + EventKeys
-        df_event = pd.read_csv(EventPath)
+        df_event = pd.read_csv(root_path + "/key_files/" + EventKeys)
         program_list=df_event['program'].values.tolist()
         if len(df_event) == 0:
             return Response(json.dumps({"Message": EventKeys + " is empty"}))
@@ -120,8 +121,7 @@ def DimensionSpec(request, Response):
 
     ########## Reading additional validation csv file ###########
     try:
-        Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + ValidationKeys
-        df_validation = pd.read_csv(Path)
+        df_validation = pd.read_csv(root_path+"/key_files/" + ValidationKeys)
         ### Dataframe empty check
         if len(df_validation) == 0:
             return Response(json.dumps({"Message": ValidationKeys + " is empty"}))
@@ -136,8 +136,7 @@ def DimensionSpec(request, Response):
         ValidationDict = (dict(zip(ValidationColList, ValidationList)))
 
         ########## Reading  DimensionKey csv file #################
-        DimensionPath = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + DimensionKeys
-        df_dimension = pd.read_csv(DimensionPath)
+        df_dimension = pd.read_csv(root_path + "/key_files/" + DimensionKeys)
         if len(df_dimension) == 0:
             return Response(json.dumps({"Message": DimensionKeys + " is empty"}))
         program_list=df_dimension['program'].drop_duplicates().tolist()
@@ -179,8 +178,7 @@ def DatasetSpec(request, Response):
     Program = request.json['program']
     ValidationKeys = request.json['validation_keys']
     ########## Reading additional validation csv file ###########
-    Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + ValidationKeys
-    df_validation = pd.read_csv(Path)
+    df_validation = pd.read_csv(root_path + "/key_files/" + ValidationKeys)
     ### Dataframe empty check
     if len(df_validation) == 0:
         return Response(json.dumps({"Message": ValidationKeys + " is empty"}))
@@ -195,8 +193,7 @@ def DatasetSpec(request, Response):
     ValidationDict = (dict(zip(ValidationColList, ValidationList)))
 
     ########## Reading  Datasetkeys csv file #################
-    DatasetPath = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + DatasetKeys
-    df_dataset = pd.read_csv(DatasetPath)
+    df_dataset = pd.read_csv(root_path + "/key_files/" + DatasetKeys)
     program_list=df_dataset['program'].values.tolist()
     ### Dataframe empty check
     if len(df_dataset) == 0:
@@ -211,29 +208,16 @@ def DatasetSpec(request, Response):
         for value in DatasetValue:
             dataset = (dict(zip(DatasetColList, value)))
             DatasetName = dataset['dataset_name']
-            TransformerTemplate = dataset['transformer_template']
-
-            ### checking transformer template name and assigning proper spec template
-            if TransformerTemplate in ['E&CToCubePer', 'E&CToCubePerIncrement']:
-                SpecTemplate = 'CubeToCube'
-            elif TransformerTemplate in ['EventToCube', 'EventToCubeIncrement', 'EventToCubePer','EventToCubePerIncrement']:
-                SpecTemplate = 'EventToCube'
-            elif TransformerTemplate in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement','CubeToCubeFilter','CubeToCubeFilterIncrement']:
-                SpecTemplate = 'CubeToCubeFilter'
-            elif TransformerTemplate in ['EventToCubePerFilter','EventToCubePerFilterIncrement']:
-                SpecTemplate = 'EventToCubeFilter'
-            elif TransformerTemplate == 'Dataset_Dimension':
-                SpecTemplate = 'Dataset'
-            else:
-                return Response(json.dumps({"Message": "Template name is not correct", "Template": TransformerTemplate, "Dataset": DatasetName}))
-
+            SpecTemplate=dataset['spec_template']
+            if SpecTemplate not in SpecTemplateList:
+                return Response(json.dumps({"Message": "Template name is not correct", "Template": SpecTemplate, "Dataset": DatasetName}))
             ### Reading data from dataset_keys file and assigning to variables
             DimensionCol = [x.strip() for x in dataset['dimension_col'].split(',')]
             DimensionTable = [x.strip() for x in dataset['dimension_table'].split(',')]
             MergeOnCol = [x.strip() for x in dataset['merge_on_col'].split(',')]
             DatasetColumn = [x.strip() for x in dataset['dataset_col'].split(',')]
             DataTypes = [x.strip() for x in dataset['dataset_datatype'].split(',')]
-            DatasetDict = dict(zip(DatasetColumn, DataTypes))
+            DatasetDict = dict(zip(DatasetColumn, DataTypes))  ## creating dict of datasetcol and datatypes
             GroupByCol = [x.strip() for x in str(dataset['group_by_col']).split(',')]
             AggFunction = [x.strip() for x in str(dataset['agg_function']).split(',')]
             TargetTable = [x.strip() for x in str(dataset['target_table']).split(',')]

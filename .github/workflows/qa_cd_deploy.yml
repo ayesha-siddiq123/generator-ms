@@ -12,8 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: adding db creds
-      run: sed -i 's/database_host/${{secrets.DB_HOST}}/g;s/database_port/${{secrets.DB_PORT}}/g;s/database_name/${{secrets.DATABASE}}/g;s/database_user/${{secrets.DB_USER}}/g;s/database_password/${{secrets.DB_PASSWORD}}/g;s#database_url#${{secrets.QA_SERVER_URL}}#g;s/s3_error_bucket_name/${{secrets.ERROR_BUCKET_NAME}}/g;s/s3_archived_bucket_name/${{secrets.ARCHIVED_BUCKET_NAME}}/g;s/aws_s3_access_key/${{secrets.S3_ACCESS_KEY}}/g;s/aws_s3_secret_key/${{secrets.S3_SECRET_KEY}}/g' config.ini
+      run: sed -i 's/database_host/${{secrets.DB_HOST}}/g;s/database_port/${{secrets.DB_PORT}}/g;s/database_name/${{secrets.DATABASE}}/g;s/database_user/${{secrets.DB_USER}}/g;s/database_password/${{secrets.DB_PASSWORD}}/g;s#database_url#${{secrets.QA_SERVER_URL}}#g' config.ini
       shell: bash 
+
+    - name: adding S3 credentials
+      run: sed -i 's|s3_error_bucket_name|${{secrets.ERROR_BUCKET_NAME}}|g;s|s3_archived_bucket_name|${{secrets.ARCHIVED_BUCKET_NAME}}|g;s|aws_s3_access_key|${{secrets.S3_ACCESS_KEY}}|g;s|aws_s3_secret_key|${{secrets.S3_SECRET_KEY}}|g' config.ini
+      shell: bash  
 
     - name: Docker Login
       uses: docker/login-action@v2

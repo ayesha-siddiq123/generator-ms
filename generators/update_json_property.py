@@ -11,10 +11,12 @@ error_bucket_name = config['CREDs']['error_bucket_name']
 archived_bucket_name = config['CREDs']['archived_bucket_name']
 s3_access_key = config['CREDs']['s3_access_key']
 s3_secret_key = config['CREDs']['s3_secret_key']
+nifi_host = config['CREDs']['nifi_host']
+nifi_port = config['CREDs']['nifi_port']
 
 def get_nifi_root_pg():
     """ Fetch nifi root processor group ID"""
-    res = rq.get(f'{url}/nifi-api/process-groups/root')
+    res = rq.get(f'http://{nifi_host}:{nifi_port}/nifi-api/process-groups/root')
     if res.status_code == 200:
         global nifi_root_pg_id
         nifi_root_pg_id = res.json()['component']['id']
@@ -27,7 +29,7 @@ def get_processor_group_info(processor_group_name):
     Get procesor group details
     """
     nifi_root_pg_id = get_nifi_root_pg()
-    pg_list = rq.get(f'{url}/nifi-api/flow/process-groups/{nifi_root_pg_id}')
+    pg_list = rq.get(f'http://{nifi_host}:{nifi_port}/nifi-api/flow/process-groups/{nifi_root_pg_id}')
     if pg_list.status_code == 200:
         # Iterate over processGroups and find the required processor group details
         for i in pg_list.json()['processGroupFlow']['flow']['processGroups']:
@@ -42,7 +44,7 @@ def get_processor_group_ports(processor_group_name):
     # Get processor group details
     global pg_source
     pg_source = get_processor_group_info(processor_group_name)
-    pg_details = rq.get(f"{url}/nifi-api/flow/process-groups/{pg_source['component']['id']}")
+    pg_details = rq.get(f"http://{nifi_host}:{nifi_port}/nifi-api/flow/process-groups/{pg_source['component']['id']}")
     if pg_details.status_code != 200:
         return pg_details.text
     else:
@@ -468,7 +470,7 @@ def update_processor_property(processor_group_name, processor_name):
                     }
                 # API call to update the processor property
                 update_processor_res = rq.put(
-                    f"{url}/nifi-api/processors/{i['component']['id']}",
+                    f"http://{nifi_host}:{nifi_port}/nifi-api/processors/{i['component']['id']}",
                     json=update_processor_property_body)
                 if update_processor_res.status_code == 200:
                     print(f"Successfully updated the properties in the {processor_name}")

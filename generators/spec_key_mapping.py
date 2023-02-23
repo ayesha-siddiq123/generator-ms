@@ -89,6 +89,8 @@ def EventSpec(request, Response):
             DataTypes = [x.strip() for x in event['event_datatype'].split(',')]
             EventDict = dict(zip(EventColumn, DataTypes))
             ColumnsDataType = []
+            if len(EventColumn)!=len(DataTypes):
+                return Response(json.dumps({'Message':'Length of dataset columns and datatypes are mismatching '+EventName}))
             for event_col in EventColumn:
                 if 'date' in event_col.casefold():
                     ColumnsDataType.append({"type":EventDict[event_col].strip(), "shouldnotnull": True, "format": "date"})
@@ -153,6 +155,9 @@ def DimensionSpec(request, Response):
             TargetTable = [x.strip() for x in DimensionDict['target_table'].split(',')]
             DimensionDict = dict(zip(DimensionColumn, DataTypes))
             ColumnsDataType = []
+            if len(DimensionColumn)!=len(DataTypes):
+                return Response(json.dumps({'Message':'Length of dataset columns and datatypes are mismatching '+DimensionName}))
+
             for dimension_col in DimensionColumn:
                 if (dimension_col.casefold() == 'grade') | (dimension_col.casefold() == 'class'):
                     ColumnsDataType.append({"type":DimensionDict[dimension_col].strip(), "shouldnotnull": True, "minimum": 1, "maximum": 12})
@@ -231,7 +236,7 @@ def DatasetSpec(request, Response):
             Denominator = [x.strip() for x in str(dataset['denominator']).split(',')]
             ColumnsDataType = []
             if len(DatasetColumn)!=len(DataTypes):
-                return Response(json.dumps({'Message':'Length of dataset columns and datatypes are not matching '+DatasetName}))
+                return Response(json.dumps({'Message':'Length of dataset columns and datatypes are mismatching '+DatasetName}))
 
             ### creating validation format
             for datasetcol in DatasetColumn:

@@ -11,12 +11,13 @@ config.read(configuartion_path);
 # Creating the class
 class APIsIntegrator:
     def __init__(self):
+
+        self.generator_host = config['CREDs']['generator_host']
+        self.generator_port = config['CREDs']['generator_port']
         self.spec_host = config['CREDs']['spec_host']
         self.spec_port = config['CREDs']['spec_port']
-        self.generator_host = config['CREDs']['spec_host']
-        self.generator_port = config['CREDs']['spec_port']
-        self.nifi_host = config['CREDs']['spec_host']
-        self.nifi_port = config['CREDs']['spec_port']
+        self.nifi_host = config['CREDs']['nifi_host']
+        self.nifi_port = config['CREDs']['nifi_port']
         self.spec_url=self.spec_host+':'+self.spec_port
         self.generator_url = self.generator_host+':'+ self.generator_port
         self.nifi_url = self.nifi_host +':'+self.nifi_port
@@ -189,7 +190,7 @@ class APIsIntegrator:
             print({"message": re['message'], "Scheduler": payload})
             time.sleep(0.5)
     def static_processor_group_creation(self):
-        url = self.nifi_url +'/static_processor_group_creation'
+        url = f'{self.generator_host}:{self.generator_port}/static_processor_group_creation'
         response = requests.request("POST", url, headers=self.headers)
         re = response.json()
         print({"message": re['message']})

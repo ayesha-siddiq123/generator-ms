@@ -13,7 +13,7 @@ nifi_host = config['CREDs']['nifi_host']
 nifi_port = config['CREDs']['nifi_port']
 def get_nifi_root_pg():
     """ Fetch nifi root processor group ID"""
-    res = rq.get(f':{nifi_port}/nifi-api/process-groups/root')
+    res = rq.get(f'{nifi_host}:{nifi_port}/nifi-api/process-groups/root')
     if res.status_code == 200:
         global nifi_root_pg_id
         nifi_root_pg_id = res.json()['component']['id']

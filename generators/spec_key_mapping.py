@@ -3,10 +3,13 @@ import os
 import re
 from datetime import date
 import pandas as pd
-
+import glob
+root_path=os.path.dirname(os.path.abspath(__file__))
 ##### Getting todays Date
 todays_date = date.today()
-
+SpecTemplatePath=glob.glob(root_path+'/templates/*.json')
+SpecTemplateList=[spec.split('/')[-1].split('.')[0] for spec in SpecTemplatePath]
+print(SpecTemplateList)
 CreatedSpecList = []
 
 def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
@@ -14,13 +17,13 @@ def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
     SpecFile = SpecFile + '.json'
     Program = Program + '_Specs'
     ### creating folder with program name
-    if not os.path.exists(os.path.dirname(os.path.abspath(__file__))+'/'+Program):
-        os.makedirs(os.path.dirname(os.path.abspath(__file__))+'/'+Program)
+    if not os.path.exists(root_path+'/'+Program):
+        os.makedirs(root_path+'/'+Program)
     #### deleting Grammar file if already exists with the same name
-    if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/' + Program + '/' + SpecFile):
-        os.remove(os.path.dirname(os.path.abspath(__file__)) + '/' + Program + '/' + SpecFile)
+    if os.path.exists(root_path + '/' + Program + '/' + SpecFile):
+        os.remove(root_path + '/' + Program + '/' + SpecFile)
     #### reading grammar template
-    with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + SpecTemplate, 'r') as fs:
+    with open(root_path + '/templates/' + SpecTemplate, 'r') as fs:
         ValueOfTemplate = fs.readlines()
     if (len(InputKeys) != 0):
         ### iterating lines in the template
@@ -42,7 +45,7 @@ def KeysMaping(Program, InputKeys, SpecTemplate, SpecFile, Response):
         CreatedSpecList.append({"filename": SpecFile})
     else:
         print('ERROR : InputKey is empty')
-        return Response(json.dumps({"Message": "InputKey is empty"}))
+        return Response(json.dumps({"message": "InputKey is empty"}))
 
 InputKeys = {}
 
@@ -55,11 +58,10 @@ def EventSpec(request, Response):
     ValidationKeys = request.json['validation_keys']
     ########## Reading additional validation csv file ###########
     try:
-        Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + ValidationKeys
-        df_validation = pd.read_csv(Path)
+        df_validation = pd.read_csv(root_path+ "/key_files/" + ValidationKeys)
         ### Dataframe empty check
         if len(df_validation) == 0:
-            return Response(json.dumps({"Message": ValidationKeys + " is empty"}))
+            return Response(json.dumps({"message": ValidationKeys + " is empty"}))
         ### collecting validation values to list
         ValidationItems = df_validation.values.tolist()
         ### converting Validation_key_file values into key value pair
@@ -71,13 +73,12 @@ def EventSpec(request, Response):
         validation_dict = (dict(zip(ValidationColList, ValidationList)))
 
         ########## Reading  Eventtkeys csv file #################
-        EventPath = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + EventKeys
-        df_event = pd.read_csv(EventPath)
+        df_event = pd.read_csv(root_path + "/key_files/" + EventKeys)
         program_list=df_event['program'].values.tolist()
         if len(df_event) == 0:
-            return Response(json.dumps({"Message": EventKeys + " is empty"}))
+            return Response(json.dumps({"message": EventKeys + " is empty"}))
         if Program not in program_list:
-            return Response(json.dumps({"Message": "Invalid Program name", "Program": Program}))
+            return Response(json.dumps({"message": "Invalid Program name", "program": Program}))
         df_event = df_event.loc[df_event['program'] == Program]
         E_keys = df_event.keys().tolist()
         event_items = df_event.values.tolist()
@@ -88,6 +89,8 @@ def EventSpec(request, Response):
             DataTypes = [x.strip() for x in event['event_datatype'].split(',')]
             EventDict = dict(zip(EventColumn, DataTypes))
             ColumnsDataType = []
+            if len(EventColumn)!=len(DataTypes):
+                return Response(json.dumps({'message':'Length of dataset columns and datatypes are mismatching '+EventName}))
             for event_col in EventColumn:
                 if 'date' in event_col.casefold():
                     ColumnsDataType.append({"type":EventDict[event_col].strip(), "shouldnotnull": True, "format": "date"})
@@ -107,8 +110,8 @@ def EventSpec(request, Response):
             KeysMaping(Program, InputKeys, Template, EventName, Response)
     except Exception as error:
         print(error)
-        return Response(json.dumps({"Message": "Spec not created", "SpecFiles":EventName, "code": 400}))
-    return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))
+        return Response(json.dumps({"message": "Spec not created", "spec_files":EventName, "code": 400}))
+    return Response(json.dumps({"message": "Spec created successfully", "spec_files": CreatedSpecList, "code": 200}))
 
 
 
@@ -120,11 +123,10 @@ def DimensionSpec(request, Response):
 
     ########## Reading additional validation csv file ###########
     try:
-        Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + ValidationKeys
-        df_validation = pd.read_csv(Path)
+        df_validation = pd.read_csv(root_path+"/key_files/" + ValidationKeys)
         ### Dataframe empty check
         if len(df_validation) == 0:
-            return Response(json.dumps({"Message": ValidationKeys + " is empty"}))
+            return Response(json.dumps({"message": ValidationKeys + " is empty"}))
         ### collecting validation values to list
         ValidationItems = df_validation.values.tolist()
         ### converting Validation_key_file values into key value pair
@@ -136,13 +138,12 @@ def DimensionSpec(request, Response):
         ValidationDict = (dict(zip(ValidationColList, ValidationList)))
 
         ########## Reading  DimensionKey csv file #################
-        DimensionPath = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + DimensionKeys
-        df_dimension = pd.read_csv(DimensionPath)
+        df_dimension = pd.read_csv(root_path + "/key_files/" + DimensionKeys)
         if len(df_dimension) == 0:
-            return Response(json.dumps({"Message": DimensionKeys + " is empty"}))
+            return Response(json.dumps({"message": DimensionKeys + " is empty"}))
         program_list=df_dimension['program'].drop_duplicates().tolist()
         if Program not in program_list:
-             return Response(json.dumps({"Message":"Invalid program name","Program":Program}))
+             return Response(json.dumps({"message":"Invalid program name","program":Program}))
         df_dimension = df_dimension.loc[df_dimension['program'] == Program]
         DimensionCol = df_dimension.keys().tolist()
         DimensionValues = df_dimension.values.tolist()
@@ -154,6 +155,9 @@ def DimensionSpec(request, Response):
             TargetTable = [x.strip() for x in DimensionDict['target_table'].split(',')]
             DimensionDict = dict(zip(DimensionColumn, DataTypes))
             ColumnsDataType = []
+            if len(DimensionColumn)!=len(DataTypes):
+                return Response(json.dumps({'message':'Length of dataset columns and datatypes are mismatching '+DimensionName}))
+
             for dimension_col in DimensionColumn:
                 if (dimension_col.casefold() == 'grade') | (dimension_col.casefold() == 'class'):
                     ColumnsDataType.append({"type":DimensionDict[dimension_col].strip(), "shouldnotnull": True, "minimum": 1, "maximum": 12})
@@ -168,8 +172,8 @@ def DimensionSpec(request, Response):
             KeysMaping(Program, InputKeys, Template, DimensionName, Response)
     except Exception as error:
         print(error)
-        return Response(json.dumps({"Message": "Spec not created", "SpecFiles":DimensionName, "code": 400}))
-    return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))
+        return Response(json.dumps({"message": "Spec not created", "spec_files":DimensionName, "code": 400}))
+    return Response(json.dumps({"message": "Spec created successfully", "spec_files": CreatedSpecList, "code": 200}))
 
 
 def DatasetSpec(request, Response):
@@ -179,11 +183,10 @@ def DatasetSpec(request, Response):
     Program = request.json['program']
     ValidationKeys = request.json['validation_keys']
     ########## Reading additional validation csv file ###########
-    Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + ValidationKeys
-    df_validation = pd.read_csv(Path)
+    df_validation = pd.read_csv(root_path + "/key_files/" + ValidationKeys)
     ### Dataframe empty check
     if len(df_validation) == 0:
-        return Response(json.dumps({"Message": ValidationKeys + " is empty"}))
+        return Response(json.dumps({"message": ValidationKeys + " is empty"}))
     ### collecting validation values to list
     ValidationItems = df_validation.values.tolist()
     ### converting Validation_key_file values into key value pair
@@ -195,14 +198,13 @@ def DatasetSpec(request, Response):
     ValidationDict = (dict(zip(ValidationColList, ValidationList)))
 
     ########## Reading  Datasetkeys csv file #################
-    DatasetPath = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + DatasetKeys
-    df_dataset = pd.read_csv(DatasetPath)
+    df_dataset = pd.read_csv(root_path + "/key_files/" + DatasetKeys)
     program_list=df_dataset['program'].values.tolist()
     ### Dataframe empty check
     if len(df_dataset) == 0:
-        return Response(json.dumps({"Message": DatasetKeys + " is empty"}))
+        return Response(json.dumps({"message": DatasetKeys + " is empty"}))
     if Program not in program_list:
-        return Response(json.dumps({"Message": "Invalid Program name", "Program": Program}))
+        return Response(json.dumps({"message": "Invalid Program name", "program": Program}))
     df_dataset = df_dataset.loc[df_dataset['program'] == Program]
     try:
         ### converting dataset_key_file (colums and rows)into key value pair
@@ -211,29 +213,16 @@ def DatasetSpec(request, Response):
         for value in DatasetValue:
             dataset = (dict(zip(DatasetColList, value)))
             DatasetName = dataset['dataset_name']
-            TransformerTemplate = dataset['transformer_template']
-
-            ### checking transformer template name and assigning proper spec template
-            if TransformerTemplate in ['E&CToCubePer', 'E&CToCubePerIncrement']:
-                SpecTemplate = 'CubeToCube'
-            elif TransformerTemplate in ['EventToCube', 'EventToCubeIncrement', 'EventToCubePer','EventToCubePerIncrement']:
-                SpecTemplate = 'EventToCube'
-            elif TransformerTemplate in ['CubeToCubePerFilter', 'CubeToCubePerFilterIncrement','CubeToCubeFilter','CubeToCubeFilterIncrement']:
-                SpecTemplate = 'CubeToCubeFilter'
-            elif TransformerTemplate in ['EventToCubePerFilter','EventToCubePerFilterIncrement']:
-                SpecTemplate = 'EventToCubeFilter'
-            elif TransformerTemplate == 'Dataset_Dimension':
-                SpecTemplate = 'Dataset'
-            else:
-                return Response(json.dumps({"Message": "Template name is not correct", "Template": TransformerTemplate, "Dataset": DatasetName}))
-
+            SpecTemplate=dataset['spec_template']
+            if SpecTemplate not in SpecTemplateList:
+                return Response(json.dumps({"message": "Template name is not correct", "template": SpecTemplate, "dataset": DatasetName}))
             ### Reading data from dataset_keys file and assigning to variables
             DimensionCol = [x.strip() for x in dataset['dimension_col'].split(',')]
             DimensionTable = [x.strip() for x in dataset['dimension_table'].split(',')]
             MergeOnCol = [x.strip() for x in dataset['merge_on_col'].split(',')]
             DatasetColumn = [x.strip() for x in dataset['dataset_col'].split(',')]
             DataTypes = [x.strip() for x in dataset['dataset_datatype'].split(',')]
-            DatasetDict = dict(zip(DatasetColumn, DataTypes))
+            DatasetDict = dict(zip(DatasetColumn, DataTypes))  ## creating dict of datasetcol and datatypes
             GroupByCol = [x.strip() for x in str(dataset['group_by_col']).split(',')]
             AggFunction = [x.strip() for x in str(dataset['agg_function']).split(',')]
             TargetTable = [x.strip() for x in str(dataset['target_table']).split(',')]
@@ -247,7 +236,7 @@ def DatasetSpec(request, Response):
             Denominator = [x.strip() for x in str(dataset['denominator']).split(',')]
             ColumnsDataType = []
             if len(DatasetColumn)!=len(DataTypes):
-                return Response(json.dumps({'Message':'Length of dataset columns and datatypes are not matching '+DatasetName}))
+                return Response(json.dumps({'message':'Length of dataset columns and datatypes are mismatching '+DatasetName}))
 
             ### creating validation format
             for datasetcol in DatasetColumn:
@@ -282,9 +271,9 @@ def DatasetSpec(request, Response):
                 InputKeys.update({"AggColTable":json.dumps(','.join(AggColTable)),"FilterCol":json.dumps(','.join(FilterCol)),
                                   "FilterType":json.dumps(','.join(FilterType)),"Filter":json.dumps(','.join(Filter))})
             else:
-                return Response(json.dumps({"Message": "Template name is not correct", "Template": SpecTemplate}))
+                return Response(json.dumps({"message": "Template name is not correct", "template": SpecTemplate}))
             KeysMaping(Program, InputKeys, SpecTemplate, DatasetName, Response)
     except Exception as error:
         print(error)
-        return Response(json.dumps({"Message": "Spec not created", "SpecFiles":DatasetName, "code": 400}))
-    return Response(json.dumps({"Message": "Spec created successfully", "SpecFiles": CreatedSpecList, "code": 200}))
+        return Response(json.dumps({"message": "Spec not created", "spec_files":DatasetName, "code": 400}))
+    return Response(json.dumps({"message": "Spec created successfully", "spec_files": CreatedSpecList, "code": 200}))

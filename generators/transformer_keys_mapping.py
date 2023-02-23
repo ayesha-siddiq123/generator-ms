@@ -4,9 +4,9 @@ import os
 import re
 import pandas as pd
 import psycopg2 as pg
+root_path=os.path.dirname(os.path.abspath(__file__))
 
-
-configuartion_path = os.path.dirname(os.path.abspath(__file__)) + "/transformers/python_files/config.ini"
+configuartion_path = root_path + "/transformers/python_files/config.ini"
 print(configuartion_path)
 config = configparser.ConfigParser()
 config.read(configuartion_path);
@@ -19,9 +19,9 @@ database = config['CREDs']['database']
 CeatedTransformersList = []
 
 def KeysMapping(InputKeys, Template, Transformer, Response):
-    if os.path.exists(os.path.dirname(os.path.abspath(__file__)) + '/transformers/python_files/' + Transformer):
-        os.remove(os.path.dirname(os.path.abspath(__file__)) + '/transformers/python_files/' + Transformer)
-    with open(os.path.dirname(os.path.abspath(__file__)) + '/templates/' + Template, 'r') as fs:
+    if os.path.exists(root_path + '/transformers/python_files/' + Transformer):
+        os.remove(root_path + '/transformers/python_files/' + Transformer)
+    with open(root_path + '/templates/' + Template, 'r') as fs:
         valueOfTemplate = fs.readlines()
     if len(InputKeys) != 0:
         for valueOfTemplate in valueOfTemplate:
@@ -30,7 +30,7 @@ def KeysMapping(InputKeys, Template, Transformer, Response):
             for key in templateKeys:
                 replaceStr = '{' + key + '}'
                 ToreplaceString = ToreplaceString.replace(replaceStr, str(InputKeys[key]))
-            with open(os.path.dirname(os.path.abspath(__file__)) + '/transformers/python_files/' + Transformer, 'a') as fs:
+            with open(root_path + '/transformers/python_files/' + Transformer, 'a') as fs:
                 fs.write(ToreplaceString)
         CeatedTransformersList.append({"filename": Transformer})
     else:
@@ -41,9 +41,8 @@ InputKeys = {}
 def collect_dimension_keys(request, Response):
     Dimension = request.json['ingestion_name']
     KeyFile = request.json['key_file']
-    Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + KeyFile
     try:
-        df = pd.read_csv(Path)
+        df = pd.read_csv(root_path + "/key_files/" + KeyFile)
         dimension_list=df['dimension_name'].drop_duplicates().tolist()
         if len(df) == 0:
             return Response(json.dumps({"Message": KeyFile + " is empty"}))
@@ -91,10 +90,9 @@ def collect_dataset_keys(request, Response):
     KeyFile = request.json['key_file']
     Program = request.json['program']
     EventName = request.json['ingestion_name']
-    Path = os.path.dirname(os.path.abspath(__file__)) + "/key_files/" + KeyFile
     ####### Reading Transformer Mapping Key Files ################
     try:
-        df = pd.read_csv(Path)
+        df = pd.read_csv(root_path + "/key_files/" + KeyFile)
         if len(df) == 0:
             return Response(json.dumps({"Message": KeyFile + " is empty"}))
         program_list=df['program'].drop_duplicates().tolist()

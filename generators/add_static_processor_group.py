@@ -9,10 +9,11 @@ config = configparser.ConfigParser()
 config.read(configuartion_path);
 
 server_url = config['CREDs']['server_url']
-
+nifi_host = config['CREDs']['nifi_host']
+nifi_port = config['CREDs']['nifi_port']
 def get_nifi_root_pg():
     """ Fetch nifi root processor group ID"""
-    res = rq.get(f'{server_url}/nifi-api/process-groups/root')
+    res = rq.get(f'{nifi_host}:{nifi_port}/nifi-api/process-groups/root')
     if res.status_code == 200:
         global nifi_root_pg_id
         nifi_root_pg_id = res.json()['component']['id']
@@ -40,7 +41,7 @@ def add_processor_group(pg_name):
             }
         }
     }
-    res = rq.post(f'{server_url}/nifi-api/process-groups/{nifi_root_pg_id}/process-groups', json=pg_details)
+    res = rq.post(f'{nifi_host}:{nifi_port}/nifi-api/process-groups/{nifi_root_pg_id}/process-groups', json=pg_details)
     if res.ok:
         print("Successfully created the processor group", pg_name)
     else:
@@ -51,7 +52,7 @@ def get_processor_group_info(processor_group_name):
     Get procesor group details
     """
     nifi_root_pg_id = get_nifi_root_pg()
-    pg_list = rq.get(f'{server_url}/nifi-api/flow/process-groups/{nifi_root_pg_id}')
+    pg_list = rq.get(f'{nifi_host}:{nifi_port}/nifi-api/flow/process-groups/{nifi_root_pg_id}')
     if pg_list.status_code == 200:
         # Iterate over processGroups and find the required processor group details
         for i in pg_list.json()['processGroupFlow']['flow']['processGroups']:
@@ -66,7 +67,7 @@ def get_processor_group_ports(processor_group_name):
     # Get processor group details
     global pg_source
     pg_source = get_processor_group_info(processor_group_name)
-    pg_details = rq.get(f"{server_url}/nifi-api/flow/process-groups/{pg_source['component']['id']}")
+    pg_details = rq.get(f"{nifi_host}:{nifi_port}/nifi-api/flow/process-groups/{pg_source['component']['id']}")
     if pg_details.status_code != 200:
         return pg_details.text
     else:
@@ -102,7 +103,7 @@ def get_input_port_id(processor_group_name, name):
 
 def get_processor_group_id(processor_group_name):
     nifi_root_pg_id = get_nifi_root_pg()
-    pg_list = rq.get(f'{server_url}/nifi-api/flow/process-groups/{nifi_root_pg_id}')
+    pg_list = rq.get(f'{nifi_host}:{nifi_port}/nifi-api/flow/process-groups/{nifi_root_pg_id}')
     if pg_list.status_code == 200:
         # Iterate over processGroups and find the required processor group details
         for i in pg_list.json()['processGroupFlow']['flow']['processGroups']:
@@ -162,7 +163,7 @@ def add_processor(processor_group_name, processor_name, name):
 
 
     processor_res = rq.post(
-        f"{server_url}/nifi-api/process-groups/{pg_source_json['processGroupFlow']['id']}/processors",
+        f"{nifi_host}:{nifi_port}/nifi-api/process-groups/{pg_source_json['processGroupFlow']['id']}/processors",
         json=processors)
     if processor_res.status_code == 201:
         print(f"Successfully created the processor", name)
@@ -196,7 +197,7 @@ def connect(processor_group_name,sourceid, destinationid, relationship):
         }
     }
     connection = rq.post(
-        f"{server_url}/nifi-api/process-groups/{pg_source_json['processGroupFlow']['id']}/connections",
+        f"{nifi_host}:{nifi_port}/nifi-api/process-groups/{pg_source_json['processGroupFlow']['id']}/connections",
         json=json_body)
     if connection.ok:
         print(f"Successfully connected the processor from {sourceid} to {destinationid}")
@@ -227,7 +228,7 @@ def add_ports(processor_group_name, name):
             }
         }
     if name.__contains__('output'):
-        processor_res = rq.post(f"{server_url}/nifi-api/process-groups/{pg_id}/output-ports",
+        processor_res = rq.post(f"{nifi_host}:{nifi_port}/nifi-api/process-groups/{pg_id}/output-ports",
             json=processors)
         if processor_res.status_code == 201:
             print(f"Successfully created the output ports", name)
@@ -235,7 +236,7 @@ def add_ports(processor_group_name, name):
         else:
             return processor_res.text
     if name.__contains__('input'):
-        processor_res = rq.post(f"{server_url}/nifi-api/process-groups/{pg_id}/input-ports",
+        processor_res = rq.post(f"{nifi_host}:{nifi_port}/nifi-api/process-groups/{pg_id}/input-ports",
             json=processors)
         if processor_res.status_code == 201:
             print(f"Successfully created the input ports", name)
@@ -268,7 +269,7 @@ def connect_ports_inside_pg(processor_group_name,sourceid, source_groupid, sourc
             }
     if destination_type == 'FUNNEL':
         connection = rq.post(
-            f"{server_url}/nifi-api/process-groups/{nifi_root_id}/connections",
+            f"{nifi_host}:{nifi_port}/nifi-api/process-groups/{nifi_root_id}/connections",
             json=json_body)
         if connection.ok:
             print(f"Successfully connected from {sourceid} to {destinationid}")
@@ -276,7 +277,7 @@ def connect_ports_inside_pg(processor_group_name,sourceid, source_groupid, sourc
             print("Failed to connect", connection.text)
     else:
         connection = rq.post(
-            f"{server_url}/nifi-api/process-groups/{processor_group_id}/connections",
+            f"{nifi_host}:{nifi_port}/nifi-api/process-groups/{processor_group_id}/connections",
             json=json_body)
         if connection.ok:
             print(f"Successfully connected from {sourceid} to {destinationid}")
@@ -299,7 +300,7 @@ def create_funnel():
             }
         }
     connection = rq.post(
-        f"{server_url}/nifi-api/process-groups/{get_root_id}/funnels",
+        f"{nifi_host}:{nifi_port}/nifi-api/process-groups/{get_root_id}/funnels",
         json=payload)
     if connection.ok:
         print("Sucessfully created the funnel")

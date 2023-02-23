@@ -11,7 +11,15 @@ config.read(configuartion_path);
 # Creating the class
 class APIsIntegrator:
     def __init__(self):
-        self.url_base = config['CREDs']['server_url']
+        self.spec_host = config['CREDs']['spec_host']
+        self.spec_port = config['CREDs']['spec_port']
+        self.generator_host = config['CREDs']['spec_host']
+        self.generator_port = config['CREDs']['spec_port']
+        self.nifi_host = config['CREDs']['spec_host']
+        self.nifi_port = config['CREDs']['spec_port']
+        self.spec_url=self.spec_host+self.spec_port
+        self.generator_url = self.generator_host + self.generator_port
+        self.nifi_url = self.nifi_host + self.nifi_port
         self.headers = {
             'Content-Type': 'application/json'
         }
@@ -21,7 +29,7 @@ class APIsIntegrator:
         self.keys_types=[['dataset_keys','DatasetSpec'],['event_keys','EventSpec'],['dimension_keys','DimensionSpec']]
 
     def generate_spec(self):
-        url = self.url_base + "/api/generator/spec"
+        url = self.generator_url + "/api/generator/spec"
         for program in self.program:
             for kt in self.keys_types:
                 payload = json.dumps({
@@ -31,14 +39,14 @@ class APIsIntegrator:
                     'program':program
                 })
                 response = requests.request("POST", url, headers=self.headers, data=payload)
-                print({"message": response.json(), "Transformer": payload})
+                re=response.json()
+                print({"message": re['message'], "payload":payload })
                 time.sleep(0.5)
 
     def insert_dimension_spec(self):
         for i in self.program:
             dimension_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
-            url = self.url_base + "/api/spec/dimension"
-            print(dimension_spec_files,'here::::::::::')
+            url = self.spec_url + "/api/spec/dimension"
             for file in dimension_spec_files:
                 dimension = file.split('/')[-1].strip('.json')
                 slice = dimension.split('_')[0]
@@ -47,13 +55,14 @@ class APIsIntegrator:
                         spec = json.load(f)
                     payload = json.dumps(spec)
                     response = requests.request("POST", url, headers=self.headers, data=payload)
-                    print({"message": response.json(), "Dimension": dimension})
+                    re = response.json()
+                    print({"message": re['message'], "Dimension": dimension})
                     time.sleep(0.5)
 
     def insert_event_spec(self):
         for i in self.program:
             event_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
-            url = self.url_base + "/api/spec/event"
+            url = self.spec_url + "/api/spec/event"
             for file in event_spec_files:
                 event = file.split('/')[-1].strip('.json')
                 slice = event.split('_')[0]
@@ -62,12 +71,13 @@ class APIsIntegrator:
                         spec = json.load(f)
                     payload = json.dumps(spec)
                     response = requests.request("POST", url, headers=self.headers, data=payload)
-                    print({"message": response.json(), "Event": event})
+                    re = response.json()
+                    print({"message": re['message'], "Event": event})
                     time.sleep(0.5)
 
     def insert_dataset_spec(self):
         for i in self.program:
-            url = self.url_base + "/api/spec/dataset"
+            url = self.spec_url + "/api/spec/dataset"
             dataset_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
             for file in dataset_spec_files:
                 dataset = file.split('/')[-1].strip('.json')
@@ -77,11 +87,12 @@ class APIsIntegrator:
                         spec = json.load(f)
                         payload = json.dumps(spec)
                         response = requests.request("POST", url, headers=self.headers, data=payload)
-                        print({"message": response.json(), "Dataset": dataset})
+                        re = response.json()
+                        print({"message": re['message'], "Dataset": dataset})
                         time.sleep(0.5)
 
     def generate_dataset_transformers(self):
-        url = self.url_base + "/api/spec/transformer"
+        url = self.spec_url + "/api/spec/transformer"
         data_to_list = self.dataset_mapping[['program','event_name']].drop_duplicates().values.tolist()
         for file in data_to_list:
             payload = json.dumps({
@@ -91,11 +102,12 @@ class APIsIntegrator:
                 'operation': 'dataset'
             })
             response = requests.request("POST", url, headers=self.headers, data=payload)
-            print({"message": response.json(), "Transformer": payload})
+            re = response.json()
+            print({"message": re['message'], "Transformer": payload})
             time.sleep(0.5)
 
     def generate_dimension_transformers(self):
-        url = self.url_base + "/api/spec/transformer"
+        url = self.spec_url + "/api/spec/transformer"
         data_to_list = self.dimension_mapping.values.tolist()
         for file in data_to_list:
              payload = json.dumps({
@@ -105,12 +117,13 @@ class APIsIntegrator:
                           'operation': 'dimension'
                       })
              response = requests.request("POST", url, headers=self.headers, data=payload)
-             print({"message": response.json(), "Transformer": payload})
+             re=response.json()
+             print({"message": re['message'], "Transformer": payload})
              time.sleep(0.5)
 
 
     def create_pipeline_dataset(self):
-        url = self.url_base + "/api/spec/pipeline"
+        url = self.spec_url + "/api/spec/pipeline"
         data_to_list = self.dataset_mapping.values.tolist()
         for file in data_to_list:
             payload = json.dumps({
@@ -126,11 +139,12 @@ class APIsIntegrator:
                 ]
             })
             response = requests.request("POST", url, headers=self.headers, data=payload)
-            print({"message": response.json(), "Pipeline": payload})
+            re = response.json()
+            print({"message": re['message'], "Pipeline": payload})
             time.sleep(0.5)
 
     def create_pipeline_dimension(self):
-        url = self.url_base + "/api/spec/pipeline"
+        url = self.spec_url + "/api/spec/pipeline"
         data_to_list = self.dimension_mapping.values.tolist()
         for file in data_to_list:
             payload = json.dumps(
@@ -147,10 +161,11 @@ class APIsIntegrator:
             })
             print("Payload of dimension pipeline is ::;;", payload)
             response = requests.request("POST", url, headers=self.headers, data=payload)
-            print({"message": response.json(), "Pipeline": payload})
+            re = response.json()
+            print({"message": re['message'], "Pipeline": payload})
             time.sleep(0.5)
     def schedule_dimension(self):
-        url=self.url_base+'/api/spec/schedule'
+        url=self.spec_url+'/api/spec/schedule'
         dimension_schedule = self.dimension_mapping[['dimension_name','scheduler']].drop_duplicates().values.tolist()
         for ds in dimension_schedule:
             payload=json.dumps({
@@ -158,10 +173,11 @@ class APIsIntegrator:
                  "scheduled_at": ds[1],
             })
             response = requests.request("POST", url, headers=self.headers, data=payload)
-            print({"message": response.json(), "Scheduler": payload})
+            re = response.json()
+            print({"message": re['message'], "Scheduler": payload})
             time.sleep(0.5)
     def schedule_dataset(self):
-        url=self.url_base+'/api/spec/schedule'
+        url=self.spec_url+'/api/spec/schedule'
         dataset_schedule = self.dataset_mapping[['dataset_name','scheduler']].drop_duplicates().values.tolist()
         for ds in dataset_schedule:
             payload=json.dumps({
@@ -169,12 +185,14 @@ class APIsIntegrator:
                  "scheduled_at": ds[1],
             })
             response = requests.request("POST", url, headers=self.headers, data=payload)
-            print({"message": response.json(), "Scheduler": payload})
+            re = response.json()
+            print({"message": re['message'], "Scheduler": payload})
             time.sleep(0.5)
     def static_processor_group_creation(self):
-        url = self.url_base +'/api/static_processor_group_creation'
+        url = self.nifi_url +'/static_processor_group_creation'
         response = requests.request("POST", url, headers=self.headers)
-        print({"message": response.json()})
+        re = response.json()
+        print({"message": re['message']})
 
 # Creating the object of the class
 obj = APIsIntegrator()

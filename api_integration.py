@@ -12,6 +12,8 @@ config.read(configuartion_path);
 class APIsIntegrator:
     def __init__(self):
         self.url_base = config['CREDs']['server_url']
+        self.generator_host = config['CREDs']['generator_host']
+        self.generator_port = config['CREDs']['generator_port']
         self.headers = {
             'Content-Type': 'application/json'
         }
@@ -171,7 +173,7 @@ class APIsIntegrator:
             print({"message": response.json(), "Scheduler": payload})
             time.sleep(0.5)
     def static_processor_group_creation(self):
-        url = self.url_base +'/static_processor_group_creation'
+        url = f'{self.generator_host}:{self.generator_port}/static_processor_group_creation'
         response = requests.request("POST", url, headers=self.headers)
         print({"message": response.json()})
 

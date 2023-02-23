@@ -15,11 +15,11 @@ def create_processor_group():
         add_pg_update_api = call_update_api_status_pg('update_api_status')
         add_pg_s3_archive = s3_configuration('UploadToArchiveS3')
         add_pg_s3_error = s3_configuration('UploadToErrorS3')
-        result = {"Message": "Processor groups successfully created"}
+        result = {"message": "Processor groups successfully created"}
         return add_pg_file_moving,add_pg_update_api,add_pg_s3_archive,add_pg_s3_error,Response(json.dumps(result))
     except Exception as error:
         print(error)
-        return Response(json.dumps({"Message": "Processor group not created"}))
+        return Response(json.dumps({"message": "Processor group not created"}))
 
 @app.route('/api/generator', methods=['POST'])
 def TransformerGenerator():
@@ -30,10 +30,10 @@ def TransformerGenerator():
         elif operation == 'dimension':
             return collect_dimension_keys(request, Response)
         else:
-            return Response(json.dumps({"Message": "Invalid operation"}))
+            return Response(json.dumps({"message": "Invalid operation"}))
     except Exception as error:
         print(error)
-        return Response(json.dumps({"Message": "Transformer not created"}))
+        return Response(json.dumps({"message": "Transformer not created"}))
 @app.route('/api/generator/spec',methods=['POST'])
 def SpecGenerator():
     spec_type=request.json['spec_type']
@@ -47,10 +47,10 @@ def SpecGenerator():
         elif (spec_type == 'DatasetSpec'):
              return DatasetSpec(request,Response)
         else:
-            return Response(json.dumps({"Message": "Spec Type is not correct"}))
+            return Response(json.dumps({"message": "Spec Type is not correct"}))
     except Exception as error:
         print(error)
-        return  Response(json.dumps({"Message": "Given Input Is Not Correct"}))
+        return  Response(json.dumps({"message": "Given Input Is Not Correct"}))
 
 
 if __name__ == "__main__":

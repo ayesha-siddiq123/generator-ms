@@ -17,9 +17,9 @@ class APIsIntegrator:
         self.generator_port = config['CREDs']['spec_port']
         self.nifi_host = config['CREDs']['spec_host']
         self.nifi_port = config['CREDs']['spec_port']
-        self.spec_url=self.spec_host+self.spec_port
-        self.generator_url = self.generator_host + self.generator_port
-        self.nifi_url = self.nifi_host + self.nifi_port
+        self.spec_url=self.spec_host+':'+self.spec_port
+        self.generator_url = self.generator_host+':'+ self.generator_port
+        self.nifi_url = self.nifi_host +':'+self.nifi_port
         self.headers = {
             'Content-Type': 'application/json'
         }
@@ -46,7 +46,7 @@ class APIsIntegrator:
     def insert_dimension_spec(self):
         for i in self.program:
             dimension_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
-            url = self.spec_url + "/api/spec/dimension"
+            url = self.spec_url + "/dimension"
             for file in dimension_spec_files:
                 dimension = file.split('/')[-1].strip('.json')
                 slice = dimension.split('_')[0]
@@ -62,7 +62,7 @@ class APIsIntegrator:
     def insert_event_spec(self):
         for i in self.program:
             event_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
-            url = self.spec_url + "/api/spec/event"
+            url = self.spec_url + "/event"
             for file in event_spec_files:
                 event = file.split('/')[-1].strip('.json')
                 slice = event.split('_')[0]
@@ -77,7 +77,7 @@ class APIsIntegrator:
 
     def insert_dataset_spec(self):
         for i in self.program:
-            url = self.spec_url + "/api/spec/dataset"
+            url = self.spec_url + "/dataset"
             dataset_spec_files = glob.glob(os.path.dirname(os.path.abspath(__file__)) +'/generators/'+i+'_Specs/' + '*.json')
             for file in dataset_spec_files:
                 dataset = file.split('/')[-1].strip('.json')
@@ -92,7 +92,7 @@ class APIsIntegrator:
                         time.sleep(0.5)
 
     def generate_dataset_transformers(self):
-        url = self.spec_url + "/api/spec/transformer"
+        url = self.spec_url + "/transformer"
         data_to_list = self.dataset_mapping[['program','event_name']].drop_duplicates().values.tolist()
         for file in data_to_list:
             payload = json.dumps({
@@ -107,7 +107,7 @@ class APIsIntegrator:
             time.sleep(0.5)
 
     def generate_dimension_transformers(self):
-        url = self.spec_url + "/api/spec/transformer"
+        url = self.spec_url + "/transformer"
         data_to_list = self.dimension_mapping.values.tolist()
         for file in data_to_list:
              payload = json.dumps({
@@ -123,7 +123,7 @@ class APIsIntegrator:
 
 
     def create_pipeline_dataset(self):
-        url = self.spec_url + "/api/spec/pipeline"
+        url = self.spec_url + "/pipeline"
         data_to_list = self.dataset_mapping.values.tolist()
         for file in data_to_list:
             payload = json.dumps({
@@ -144,7 +144,7 @@ class APIsIntegrator:
             time.sleep(0.5)
 
     def create_pipeline_dimension(self):
-        url = self.spec_url + "/api/spec/pipeline"
+        url = self.spec_url + "/pipeline"
         data_to_list = self.dimension_mapping.values.tolist()
         for file in data_to_list:
             payload = json.dumps(
@@ -165,7 +165,7 @@ class APIsIntegrator:
             print({"message": re['message'], "Pipeline": payload})
             time.sleep(0.5)
     def schedule_dimension(self):
-        url=self.spec_url+'/api/spec/schedule'
+        url=self.spec_url+'/schedule'
         dimension_schedule = self.dimension_mapping[['dimension_name','scheduler']].drop_duplicates().values.tolist()
         for ds in dimension_schedule:
             payload=json.dumps({
@@ -177,7 +177,7 @@ class APIsIntegrator:
             print({"message": re['message'], "Scheduler": payload})
             time.sleep(0.5)
     def schedule_dataset(self):
-        url=self.spec_url+'/api/spec/schedule'
+        url=self.spec_url+'/schedule'
         dataset_schedule = self.dataset_mapping[['dataset_name','scheduler']].drop_duplicates().values.tolist()
         for ds in dataset_schedule:
             payload=json.dumps({

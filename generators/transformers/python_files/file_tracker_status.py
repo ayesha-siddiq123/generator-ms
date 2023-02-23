@@ -8,8 +8,9 @@ root_path=os.path.dirname(os.path.dirname(os.path.dirname(path)))
 configuartion_path =path + "/config.ini"
 config = configparser.ConfigParser()
 config.read(configuartion_path);
-url = config['CREDs']['server_url']
-url=url+'/ingestion/file-status'
+ingestion_host = config['CREDs']['ingestion_host']
+ingestion_port = config['CREDs']['ingestion_port']
+url=ingestion_host+':'+ingestion_port+'/file-status'
 print(url,':::url::::::')
 
 def file_check(KeyFile,ingestion_type):

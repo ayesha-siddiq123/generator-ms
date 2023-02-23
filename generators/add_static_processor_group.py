@@ -8,7 +8,6 @@ configuartion_path = os.path.dirname(os.path.abspath(__file__))+"/transformers/p
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 
-server_url = config['CREDs']['server_url']
 
 def get_nifi_root_pg():
     """ Fetch nifi root processor group ID"""

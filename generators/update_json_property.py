@@ -6,7 +6,6 @@ configuartion_path = os.path.dirname(os.path.abspath(__file__))+"/transformers/p
 config = configparser.ConfigParser()
 config.read(configuartion_path);
 
-url = config['CREDs']['server_url']
 error_bucket_name = config['CREDs']['error_bucket_name']
 archived_bucket_name = config['CREDs']['archived_bucket_name']
 s3_access_key = config['CREDs']['s3_access_key']

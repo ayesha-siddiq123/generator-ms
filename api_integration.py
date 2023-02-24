@@ -176,7 +176,6 @@ class APIsIntegrator:
             response = requests.request("POST", url, headers=self.headers, data=payload)
             re = response.json()
             print({"message": re['message'], "Scheduler": payload})
-            time.sleep(0.5)
     def schedule_dataset(self):
         url=self.spec_url+'/schedule'
         dataset_schedule = self.dataset_mapping[['dataset_name','scheduler']].drop_duplicates().values.tolist()
@@ -188,7 +187,6 @@ class APIsIntegrator:
             response = requests.request("POST", url, headers=self.headers, data=payload)
             re = response.json()
             print({"message": re['message'], "Scheduler": payload})
-            time.sleep(0.5)
     def static_processor_group_creation(self):
         url = f'{self.generator_host}:{self.generator_port}/static_processor_group_creation'
         response = requests.request("POST", url, headers=self.headers)

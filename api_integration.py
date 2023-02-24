@@ -11,7 +11,7 @@ config.read(configuartion_path);
 # Creating the class
 class APIsIntegrator:
     def __init__(self):
-        self.url_base = config['CREDs']['server_url']
+
         self.generator_host = config['CREDs']['generator_host']
         self.generator_port = config['CREDs']['generator_port']
         self.spec_host = config['CREDs']['spec_host']

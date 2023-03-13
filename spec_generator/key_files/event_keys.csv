@@ -1,5 +1,0 @@
-program,event_name,event_col,event_datatype
-SAC,students_attendance,"date,school_id,grade,gender,total_students,students_attendance_marked,students_marked_present","string,number,number,string,number,number,number"
-SAC,teachers_attendance,"date,school_id,grade,total_teachers,teachers_attendance_marked,teachers_marked_present","string,number,number,number,number,number"
-School_Statistics,school_statistics_students,"academic_year,school_id,grade,gender,student_category,students_enrolled,cwsn_enrolled","number,number,number,string,string,number,number"
-School_Statistics,school_statistics_teachers,"academic_year,school_id,grade,total_teachers,students_enrolled","number,number,number,number,number,number"

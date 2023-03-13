@@ -1,3 +1,0 @@
-program,dimension_name,dimension_col,dimension_datatype,target_table
-SAC,school_details,"grade,school_id,school_name,school_type,school_category,cluster_id,cluster_name,block_id,block_name,district_id,district_name,state_id,state_name","number,number,string,string,string,number,string,number,string,number,string,number,string", ingestion.school_details
-School_Statistics,school_details,"grade,school_id,school_name,school_type,school_category,cluster_id,cluster_name,block_id,block_name,district_id,district_name,state_id,state_name","number,number,string,string,string,number,string,number,string,number,string,number,string", ingestion.school_details

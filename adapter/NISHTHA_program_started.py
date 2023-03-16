@@ -1,16 +1,15 @@
 from main import CollectData
 
 obj=CollectData()
-obj.create_dir()
-output_path=obj.output_path
 program=obj.program
-df_data=obj.column_rename()
+df_data=obj.get_file()
 
 print(df_data.columns)
 def started_event_data():
-    df_snap = df_data[['Program','State Code','Started']]
-    df_snap.columns = ['program_name','state_id','started']
-    df_snap.to_csv(output_path +'/' + program + '/started-event.data.csv', index=False)
+    df_snap = df_data[['State Code','Program','Started']]
+    df_snap.columns = ['state_id','program_name','started']
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'programstarted-event.data.csv')
 
 
 started_event_data()

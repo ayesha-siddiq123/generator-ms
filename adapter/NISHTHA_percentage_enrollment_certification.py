@@ -2,75 +2,92 @@
 from main import CollectData
 
 obj=CollectData()
-obj.create_dir()
-output_path=obj.output_path
 program=obj.program
-df_data=obj.column_rename()
+df_data=obj.get_file()
 
 print(df_data.columns)
 def totalenrolment_event_data():
     df_snap = df_data[['Program','State Code','Total Enrolments']]
     df_snap.columns = ['program_name','state_id','total_enrolment']
-    df_snap.to_csv(output_path +'/' + program + '/totalenrolment-event.data.csv', index=False)
-    print(df_snap.to_string())
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'totalenrolment-event.data.csv')
+
 
 def totalcompletion_event_data():
     df_snap = df_data[['Program',  'State Code', 'Total Completions']]
     df_snap.columns = ['program_name',  'state_id', 'total_completion']
-    df_snap.to_csv(output_path + '/' + program + '/totalcompletion-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'totalcompletion-event.data.csv')
 
 
 def totalcertificatesissued_event_data():
     df_snap = df_data[['Program', 'State Code', 'Total Certificates Issued']]
     df_snap.columns = ['program_name', 'state_id', 'total_certificates_issued']
-    df_snap.to_csv(output_path + '/' + program + '/totalcertificatesissued-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'totalcertificatesissued-event.data.csv')
 
 
 def totalcourses_event_data():
     df_snap = df_data[['Program','State Code', 'Total Courses']]
     df_snap.columns = ['program_name', 'state_id', 'total_courses']
-    df_snap.to_csv(output_path + '/' + program + '/totalcourses-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'totalcourses-event.data.csv')
+
 
 def doe_event_data():
     df_snap = df_data[['Program','State Code', 'DOE']]
     df_snap.columns = ['program_name', 'state_id', 'doe']
-    df_snap.to_csv(output_path + '/' + program + '/doe-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'doe-event.data.csv')
+
 
 def localbody_event_data():
     df_snap = df_data[['Program','State Code', 'Local Body']]
     df_snap.columns = ['program_name', 'state_id', 'local_body']
-    df_snap.to_csv(output_path + '/' + program + '/localbody-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'localbody-event.data.csv')
+
 
 def perctargetachievedenrolment_event_data():
     df_snap = df_data[['Program',  'State Code', '% Target Achieved- Enrolment']]
     df_snap.columns = ['program_name',  'state_id', 'perc_target_achieved_enrolment']
-    df_snap.to_csv(output_path + '/' + program + '/perctargetachievedenrolment-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'perctargetachievedenrolment-event.data.csv')
+
 
 def perctargetachievedcertificates_event_data():
     df_snap = df_data[['Program', 'State Code', '% Target Achieved- Certificates']]
     df_snap.columns = ['program_name', 'state_id', 'perc_target_achieved_certificates']
-    df_snap.to_csv(output_path +  '/' + program + '/perctargetachievedcertificates-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'perctargetachievedcertificates-event.data.csv')
+
 
 def perctargetremainingenrolment_event_data():
     df_snap = df_data[['Program', 'State Code', '% Target Remaining- Enrolment']]
     df_snap.columns = ['program_name', 'state_id', 'perc_target_remaining_enrolment']
-    df_snap.to_csv(output_path + '/' + program + '/perctargetremainingenrolment-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'perctargetremainingenrolment-event.data.csv')
+
 
 def perctargetremainingcertificates_event_data():
     df_snap = df_data[['Program',  'State Code', '% Target Remaining- Certificates']]
     df_snap.columns = ['program_name',  'state_id', 'perc_target_remaining_certificates']
-    df_snap.to_csv(output_path +  '/' + program + '/perctargetremainingcertificates-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'perctargetremainingcertificates-event.data.csv')
+
 
 def totalexpectedenrolment_event_data():
     df_snap = df_data[['Program',  'State Code', 'Total Expected Enrolment']]
     df_snap.columns = ['program_name',  'state_id', 'total_expected_enrolment']
-    df_snap.to_csv(output_path +  '/' + program + '/totalexpectedenrolment-event.data.csv', index=False)
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'totalexpectedenrolment-event.data.csv')
+
 
 def totalexpectedcertification_event_data():
     df_snap = df_data[['Program',  'State Code', 'Total Expected Certification']]
     df_snap.columns = ['program_name','state_id', 'total_expected_certification']
-    df_snap.to_csv(output_path + '/' + program + '/totalexpectedcertification-event.data.csv', index=False)
-
+    csv_data = df_snap.to_csv(index=False)
+    obj.upload_file(csv_data, 'totalexpectedcertification-event.data.csv')
 
 
 totalenrolment_event_data()

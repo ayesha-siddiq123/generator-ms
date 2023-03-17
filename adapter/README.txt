@@ -1,7 +1,3 @@
-#_____________________ config __________________#
-
-input = add your input folder path where data is there for all the states
-output = add output path where you want to save data
 
 #_______________ how to run code ______________#
 cd Adapter

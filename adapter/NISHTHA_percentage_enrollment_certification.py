@@ -6,100 +6,81 @@ program=obj.program
 df_data=obj.get_file()
 
 print(df_data.columns)
-def totalenrolment_event_data():
+def total_enrolment():
     df_snap = df_data[['State Code','Program','Total Enrolments']]
     df_snap.columns = ['state_id','program_name','total_enrolment']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'totalenrolment-event.data.csv')
+    obj.upload_file(df_snap, 'totalenrolment-event.data.csv')
 
-
-def totalcompletion_event_data():
+def total_completion():
     df_snap = df_data[['State Code','Program','Total Completions']]
     df_snap.columns = ['state_id','program_name','total_completion']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'totalcompletion-event.data.csv')
+    obj.upload_file(df_snap, 'totalcompletion-event.data.csv')
 
-
-def totalcertificatesissued_event_data():
+def total_certificates_issued():
     df_snap = df_data[['State Code', 'Program','Total Certificates Issued']]
     df_snap.columns = ['state_id','program_name','total_certificates_issued']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'totalcertificatesissued-event.data.csv')
+    obj.upload_file(df_snap, 'totalcertificatesissued-event.data.csv')
 
-
-def totalcourses_event_data():
+def total_courses():
     df_snap = df_data[['State Code','Program', 'Total Courses']]
     df_snap.columns = ['state_id','program_name',  'total_courses']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'totalcourses-event.data.csv')
+    obj.upload_file(df_snap, 'totalcourses-event.data.csv')
 
 
 def doe_event_data():
     df_snap = df_data[['State Code','Program', 'DOE']]
     df_snap.columns = ['state_id','program_name','doe']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'doe-event.data.csv')
+    obj.upload_file(df_snap, 'doe-event.data.csv')
 
 
 def localbody_event_data():
     df_snap = df_data[['State Code', 'Program','Local Body']]
     df_snap.columns = ['state_id','program_name',  'local_body']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'localbody-event.data.csv')
+    obj.upload_file(df_snap, 'localbody-event.data.csv')
 
 
-def perctargetachievedenrolment_event_data():
+def target_achieved_enrolment():
     df_snap = df_data[['State Code','Program','% Target Achieved- Enrolment']]
     df_snap.columns = ['state_id','program_name','perc_target_achieved_enrolment']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'perctargetachievedenrolment-event.data.csv')
+    obj.upload_file(df_snap, 'achievedenrolment-event.data.csv')
 
 
-def perctargetachievedcertificates_event_data():
+def target_achieved_certificates():
     df_snap = df_data[['State Code', 'Program','% Target Achieved- Certificates']]
     df_snap.columns = ['state_id','program_name', 'perc_target_achieved_certificates']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'perctargetachievedcertificates-event.data.csv')
+    obj.upload_file(df_snap, 'achievedcertificates-event.data.csv')
 
-
-def perctargetremainingenrolment_event_data():
+def target_remaining_enrolment():
     df_snap = df_data[['State Code', 'Program','% Target Remaining- Enrolment']]
     df_snap.columns = ['state_id', 'program_name','perc_target_remaining_enrolment']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'perctargetremainingenrolment-event.data.csv')
+    obj.upload_file(df_snap, 'targetremainingenrolment-event.data.csv')
 
-
-def perctargetremainingcertificates_event_data():
+def target_remaining_certificates():
     df_snap = df_data[['State Code','Program','% Target Remaining- Certificates']]
     df_snap.columns = [ 'state_id','program_name','perc_target_remaining_certificates']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'perctargetremainingcertificates-event.data.csv')
+    obj.upload_file(df_snap, 'targetremainingcertificates-event.data.csv')
 
-
-def totalexpectedenrolment_event_data():
+def total_expected_enrolment():
     df_snap = df_data[['State Code','Program','Total Expected Enrolment']]
     df_snap.columns = ['state_id','program_name','total_expected_enrolment']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'totalexpectedenrolment-event.data.csv')
+    obj.upload_file(df_snap, 'expectedenrolment-event.data.csv')
 
-
-def totalexpectedcertification_event_data():
+def total_expected_certification():
     df_snap = df_data[['State Code', 'Program','Total Expected Certification']]
     df_snap.columns = ['state_id','program_name','total_expected_certification']
-    csv_data = df_snap.to_csv(index=False)
-    obj.upload_file(csv_data, 'totalexpectedcertification-event.data.csv')
+    obj.upload_file(df_snap, 'expectedcertification-event.data.csv')
 
-
-totalenrolment_event_data()
-totalcompletion_event_data()
-totalcertificatesissued_event_data()
-totalcourses_event_data()
+total_enrolment()
+total_completion()
+total_certificates_issued()
+total_courses()
 doe_event_data()
 localbody_event_data()
-perctargetachievedenrolment_event_data()
-perctargetachievedcertificates_event_data()
-perctargetremainingenrolment_event_data()
-perctargetremainingcertificates_event_data()
-totalexpectedenrolment_event_data()
-totalexpectedcertification_event_data()
+target_achieved_enrolment()
+target_achieved_certificates()
+target_remaining_enrolment()
+target_remaining_certificates()
+total_expected_enrolment()
+total_expected_certification()
+
 

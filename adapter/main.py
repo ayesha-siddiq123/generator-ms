@@ -1,14 +1,14 @@
 import re
 import os
+import io
 import sys
-import zipfile
-from minio import Minio
 import boto3
-import pandas as pd
+import zipfile
 import configparser
+import pandas as pd
+from minio import Minio
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient
-import io
 
 configuartion_path =os.path.dirname(os.path.abspath(__file__)) + "/config.ini"
 config = configparser.ConfigParser()
@@ -39,7 +39,6 @@ class CollectData:
         self.s3_bucket          = config['CREDs']['s3_bucket']
         self.s3_input_folder    = 'emission/' + self.date_today+'/'+self.input_file
         self.s3_output_folder   = 'process_input/' + self.program + '/' + self.date_today
-        self.rep_list = []
 
         #___________________Minio Bucket Config Keys___________________
 
@@ -74,7 +73,7 @@ class CollectData:
             print(f'Error: Failed to connect to {self.minio_bucket} bucket')
 
     #___________________________Column renaming after reading file from colud__________
-
+        self.rep_list = []
     def column_rename(self,df):
         for col in df.columns.tolist():
             x=re.sub(r'^[\d.\s]+|[\d.\s]+$]+','',col)
@@ -83,6 +82,9 @@ class CollectData:
         df_snap=df[col_list]
         df_snap.columns=self.rep_list
         return df_snap
+
+    #__________________________Parsing the buffer data_________________________________
+
     def data_parser(self,data):
         with zipfile.ZipFile(data) as myzip:
             with myzip.open(myzip.namelist()[0]) as myfile:

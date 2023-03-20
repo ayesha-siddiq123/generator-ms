@@ -148,4 +148,3 @@ class CollectData:
             print(f"File {output_file} uploaded successfully to the folder {self.minio_output_folder}.")
 
 
-obj=CollectData()

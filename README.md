@@ -1,4 +1,5 @@
 #_______________ how to run code ______________#
+
 cd adapter
 chmode 777 VSK_data_transformation.sh
 bash VSK_data_transformation.sh      ------------ TO run the code in the same directory where ".sh" file is there

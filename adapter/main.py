@@ -10,6 +10,7 @@ from minio import Minio
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient
 
+
 configuartion_path =os.path.dirname(os.path.abspath(__file__)) + "/config.ini"
 config = configparser.ConfigParser()
 config.read(configuartion_path);
@@ -24,15 +25,14 @@ class CollectData:
         self.date_today = datetime.now().strftime('%d-%b-%Y')
         self.env          = config['CREDs']['storage_type']
 
-        # ______________AZURE Blob Config keys______________________
+        #______________AZURE Blob Config keys______________________
+
         self.azure_connection_string = config['CREDs']['azure_connection_string']
-        self.azure_account_name      = config['CREDs']['azure_account_name']
-        self.azure_account_key       = config['CREDs']['azure_account_key']
         self.azure_container         = config['CREDs']['azure_container']
         self.azure_input_folder      = 'emission/'+self.date_today+'/'+self.input_file
         self.azure_output_folder     = 'process_input/' + self.program + '/' + self.date_today
 
-        # __________________S3 Bucket Config Keys___________________
+        #__________________S3 Bucket Config Keys___________________
 
         self.aws_access_key     = config['CREDs']['aws_access_key']
         self.aws_secret_key     = config['CREDs']['aws_secret_key']
@@ -42,15 +42,16 @@ class CollectData:
 
         #___________________Minio Bucket Config Keys___________________
 
-        self.minio_endpoint     = config['CREDs']['end_point']
-        self.minio_port         = config['CREDs']['port']
+        self.minio_endpoint     = config['CREDs']['minio_end_point']
+        self.minio_port         = config['CREDs']['minio_port']
         self.minio_access_key   = config['CREDs']['minio_access_key']
         self.minio_secrete_key  = config['CREDs']['minio_secrete_key']
         self.minio_bucket       = config['CREDs']['minio_bucket']
         self.minio_input_folder = 'emission/' + self.date_today+'/'+self.input_file
         self.minio_output_folder= 'process_input/'+ self.program + '/' + self.date_today
 
-        # ___________________AZURE Blob Connection___________________________
+        #___________________AZURE Blob Connection___________________________
+
         try:
             self.blob_service_client = BlobServiceClient.from_connection_string(self.azure_connection_string)
             self.container_client = self.blob_service_client.get_container_client(self.azure_container)
@@ -66,6 +67,7 @@ class CollectData:
             print(f'Error: Failed to connect to {self.s3_bucket} bucket')
 
         #__________________ Minio Bucket Connection_________________
+
         try:
             self.minio_client = Minio(endpoint=self.minio_endpoint+':'+self.minio_port,access_key=self.minio_access_key,secret_key=self.minio_secrete_key,secure=False)  # set this to True if your Minio instance is secured with SSL/TLS
             self.minio_object_list=self.minio_client.list_objects(self.minio_bucket, prefix=self.minio_input_folder, recursive=True)
@@ -73,6 +75,7 @@ class CollectData:
             print(f'Error: Failed to connect to {self.minio_bucket} bucket')
 
     #___________________________Column renaming after reading file from colud__________
+
         self.rep_list = []
     def column_rename(self,df):
         for col in df.columns.tolist():
@@ -95,6 +98,7 @@ class CollectData:
     #_____________________________Read the File from Cloud_____________________________
 
     def  get_file(self):
+
         if self.env == 'azure': ## reading frile from Azure cloud
             blobs_list = self.container_client.list_blobs(name_starts_with=self.azure_input_folder)
             if any(blobs_list):
@@ -142,6 +146,5 @@ class CollectData:
         elif self.env == 'local': ## uploading file to local Minio
             self.minio_client.put_object(bucket_name=self.minio_bucket,object_name=self.minio_output_folder+'/'+output_file,data=csv_buffer,length=len(csv_bytes),content_type='application/csv')
             print(f"File {output_file} uploaded successfully to the folder {self.minio_output_folder}.")
-
 
 

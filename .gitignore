@@ -106,3 +106,4 @@ dist
 adapter/config.ini
 .idea
 /adapter/__pycache__
+test_adapter.py

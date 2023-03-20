@@ -7,4 +7,5 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-CMD [ "bash", "adapter/VSK_data_transformation.sh"]
+WORKDIR /python_app/adapter 	
+CMD [ "bash", "VSK_data_transformation.sh"]

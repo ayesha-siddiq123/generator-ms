@@ -77,8 +77,8 @@ class CollectData:
 
     #___________________________Column renaming after reading file from colud__________
 
-    def column_rename(self,df):
         self.rep_list = []
+    def column_rename(self,df):
         for col in df.columns.tolist():
             x=re.sub(r'^[\d.\s]+|[\d.\s]+$]+','',col)
             self.rep_list.append(x)

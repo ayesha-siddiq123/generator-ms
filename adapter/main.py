@@ -10,7 +10,6 @@ from minio import Minio
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient
 
-
 configuartion_path =os.path.dirname(os.path.abspath(__file__)) + "/config.ini"
 config = configparser.ConfigParser()
 config.read(configuartion_path);
@@ -37,7 +36,7 @@ class CollectData:
                 self.blob_service_client = BlobServiceClient.from_connection_string(self.azure_connection_string)
                 self.container_client = self.blob_service_client.get_container_client(self.azure_container)
             except Exception:
-                print(f'Error: Failed to connect to azure {self.azure_container} container')
+                print(f'Error : Failed to connect to azure {self.azure_container} container')
 
         elif self.env == 'AWS':
             #__________________S3 Bucket Config Keys___________________
@@ -53,7 +52,7 @@ class CollectData:
                                        aws_secret_access_key=self.aws_secret_key)
                 self.s3_objects_list = self.s3.list_objects_v2(Bucket=self.s3_bucket, Prefix=self.s3_input_folder)
             except Exception:
-                print(f'Error: Failed to connect to {self.s3_bucket} bucket')
+                print(f'Error : Failed to connect to {self.s3_bucket} bucket')
 
         elif self.env == 'local':
             #___________________Minio Bucket Config Keys___________________
@@ -65,18 +64,17 @@ class CollectData:
             self.minio_bucket       = config['CREDs']['minio_bucket']
             self.minio_input_folder = 'emission/' + self.date_today+'/'+self.input_file
             self.minio_output_folder= 'process_input/'+ self.program + '/' + self.date_today
-            #__________________ Minio Bucket Connection_________________
 
+            #__________________ Minio Bucket Connection_________________
             try:
                 self.minio_client = Minio(endpoint=self.minio_endpoint+':'+self.minio_port,access_key=self.minio_access_key,secret_key=self.minio_secrete_key,secure=False)  # set this to True if your Minio instance is secured with SSL/TLS
                 self.minio_object_list=self.minio_client.list_objects(self.minio_bucket, prefix=self.minio_input_folder, recursive=True)
             except Exception:
                 print(f'Error: Failed to connect to {self.minio_bucket} bucket')
         else:
-            print(f'ERROR: Given storage type is not valid')
+            print(f'Error : Storage type {self.env} is not valid')
 
     #___________________________Column renaming after reading file from colud__________
-
         self.rep_list = []
     def column_rename(self,df):
         for col in df.columns.tolist():
@@ -108,7 +106,7 @@ class CollectData:
                 df_snap=self.data_parser(data)
                 return df_snap
             else:
-                print(f'Error: The folder {self.azure_input_folder} not exists in azure blob container.')
+                print(f'Error : The folder {self.azure_input_folder} not exists in azure blob container.')
 
         elif self.env == 'AWS': ## Reading file from AWS cloud
             if 'Contents' in self.s3_objects_list:
@@ -117,7 +115,7 @@ class CollectData:
                 df_snap=self.data_parser(data)
                 return df_snap
             else:
-                print(f"Error: The folder {self.s3_input_folder} does not exist in the bucket {self.s3_bucket}.")
+                print(f"Error : The folder {self.s3_input_folder} does not exist in the bucket {self.s3_bucket}.")
 
         elif self.env == 'local': ## Reading file from local Minio
             if not self.minio_object_list:
@@ -126,8 +124,9 @@ class CollectData:
                 df_snap=self.data_parser(data)
                 return df_snap
             else:
-                print(f'Error: Folder {self.minio_input_folder} does not exist')
-
+                return print(f'Error : Folder {self.minio_input_folder} does not exist')
+        else:
+            print(f'Error : Storage type {self.env} is not valid')
     #___________________________Upload the file to the cloud folder_______________________
 
     def upload_file(self,csv_data,output_file):
@@ -148,4 +147,5 @@ class CollectData:
             self.minio_client.put_object(bucket_name=self.minio_bucket,object_name=self.minio_output_folder+'/'+output_file,data=csv_buffer,length=len(csv_bytes),content_type='application/csv')
             print(f"File {output_file} uploaded successfully to the folder {self.minio_output_folder}.")
 
-
+        else:
+            print(f'Error : Storage type {self.env} is not valid')

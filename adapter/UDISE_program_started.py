@@ -9,4 +9,5 @@ def program_status():
     df_snap.columns=['state_id','started']
     obj.upload_file(df_snap, 'udiseprogramstarted-event.data.csv')
 
-program_status()
+if df_data is not None:
+    program_status()

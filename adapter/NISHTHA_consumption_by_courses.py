@@ -19,8 +19,8 @@ def totalcertification_event_data():
     df_snap.columns = ['state_id','program_name','course_name','total_certification']
     obj.upload_file(df_snap, 'coursecertification-event.data.csv')
 
-
-totalenrolment_event_data()
-totalcompletion_event_data()
-totalcertification_event_data()
+if df_data is not None:
+    totalenrolment_event_data()
+    totalcompletion_event_data()
+    totalcertification_event_data()
 

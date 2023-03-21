@@ -36,9 +36,9 @@ def grade_dimension_data():
     df_snap.columns=['grade_id','grade']
     obj.upload_file(df_snap, 'gradediksha-dimension.data.csv')
 
-
-total_plays()
-avg_play_time()
-subject_dimension_data()
-medium_dimension_data()
-grade_dimension_data()
+if df_data is not None:
+    total_plays()
+    avg_play_time()
+    subject_dimension_data()
+    medium_dimension_data()
+    grade_dimension_data()

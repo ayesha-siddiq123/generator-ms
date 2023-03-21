@@ -51,13 +51,13 @@ def district_dimension():
     df_snap.columns=['district_id','district_name','state_id','state_name','latitude','longitude']
     obj.upload_file(df_snap,'district-dimension.data.csv')
 
-
-school_event_data()
-teacher_event_data()
-student_event_data()
-performance_event_data()
-subject_dimension_data()
-learning_outcome_dimension_data()
-grade_dimension_data()
-district_dimension()
+if df_data is not None:
+    school_event_data()
+    teacher_event_data()
+    student_event_data()
+    performance_event_data()
+    subject_dimension_data()
+    learning_outcome_dimension_data()
+    grade_dimension_data()
+    district_dimension()
 

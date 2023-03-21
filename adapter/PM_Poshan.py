@@ -25,6 +25,7 @@ def category_dimenstion_data():
     df_snap=df_data[['category_id','category_name']]
     obj.upload_file(df_snap, 'categorypm-dimension.data.csv')
 
-total_meal_served()
-category_event_data()
-category_dimenstion_data()
+if df_data is not None:
+    total_meal_served()
+    category_event_data()
+    category_dimenstion_data()

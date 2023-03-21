@@ -14,5 +14,6 @@ def resource_count():
     df_snap.columns = ['tb_id','grade','subject','medium','resource_count']
     obj.upload_file(df_snap, 'resourcecount-event.data.csv')
 
-linked_qr_count()
-resource_count()
+if df_data is not None:
+    linked_qr_count()
+    resource_count()

@@ -15,6 +15,6 @@ def state_dimension():
     df_snap.columns=['state_id','state_name','latitude','longitude']
     obj.upload_file(df_snap,'state-dimension.data.csv')
 
-
-program_status()
-state_dimension()
+if df_data is not None:
+    program_status()
+    state_dimension()

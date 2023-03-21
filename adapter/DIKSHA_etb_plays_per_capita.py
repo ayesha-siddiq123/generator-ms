@@ -9,4 +9,5 @@ def plays_per_capita():
     df_snap.columns = ['state_id','plays_per_capita']
     obj.upload_file(df_snap, 'playspercapita-event.data.csv')
 
-plays_per_capita()
+if df_data is not None:
+    plays_per_capita()

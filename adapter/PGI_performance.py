@@ -22,6 +22,6 @@ def category_dimenstion_data():
     df_snap=df_data[['category_id','category_name']]
     obj.upload_file(df_snap, 'performancecategorypgi-dimension.data.csv')
 
-
-category_event_data()
-category_dimenstion_data()
+if df_data is not None:
+    category_event_data()
+    category_dimenstion_data()

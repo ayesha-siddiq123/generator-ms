@@ -13,7 +13,6 @@ def totalcompletion_event_data():
     df_snap.columns = ['state_id','district_id','program_name', 'total_completion']
     obj.upload_file(df_snap, 'consumptioncompletion-event.data.csv')
 
-
 def totalcertification_event_data():
     df_snap = df_data[['State Code', 'District Code', 'Program', 'Total Certifications']]
     df_snap.columns = ['state_id', 'district_id', 'program_name',  'total_certification']
@@ -31,9 +30,9 @@ def program_dimension_data():
     df_snap.columns = ['program_id', 'program_name']
     obj.upload_file(df_snap, 'nishthaprogram-dimension.data.csv')
 
-
-totalenrolment_event_data()
-totalcompletion_event_data()
-totalcertification_event_data()
-perccertification_event_data()
-program_dimension_data()
+if df_data is not None:
+    totalenrolment_event_data()
+    totalcompletion_event_data()
+    totalcertification_event_data()
+    perccertification_event_data()
+    program_dimension_data()

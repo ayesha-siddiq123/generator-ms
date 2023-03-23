@@ -38,7 +38,7 @@ class CollectData:
             except Exception:
                 print(f'Error : Failed to connect to azure {self.azure_container} container')
 
-        elif self.env == 'AWS':
+        elif self.env == 'aws':
             #__________________S3 Bucket Config Keys___________________
             self.aws_access_key     = config['CREDs']['aws_access_key']
             self.aws_secret_key     = config['CREDs']['aws_secret_key']
@@ -108,7 +108,7 @@ class CollectData:
             else:
                 print(f'Error : The folder {self.azure_input_folder} not exists in azure blob container.')
 
-        elif self.env == 'AWS': ## Reading file from AWS cloud
+        elif self.env == 'aws': ## Reading file from AWS cloud
             if 'Contents' in self.s3_objects_list:
                 file_bytes =self.s3.get_object(Bucket=self.s3_bucket, Key=self.s3_input_folder)
                 data=io.BytesIO(file_bytes['Body'].read())
@@ -139,7 +139,7 @@ class CollectData:
             blob_client.upload_blob(csv_buffer, overwrite=False)
             print(f"File {output_file} uploaded successfully to the folder {self.azure_output_folder}.")
 
-        elif self.env == 'AWS': ## uploading file to AWS bucket
+        elif self.env == 'aws': ## uploading file to AWS bucket
             self.s3.put_object(Body=csv_buffer,Bucket=self.s3_bucket,Key=self.s3_output_folder+'/'+output_file)
             print(f"File {output_file} uploaded successfully to the folder {self.s3_output_folder}.")
 

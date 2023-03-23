@@ -59,15 +59,15 @@ class CollectData:
 
             self.minio_endpoint     = config['CREDs']['minio_end_point']
             self.minio_port         = config['CREDs']['minio_port']
-            self.minio_access_key   = config['CREDs']['minio_access_key']
-            self.minio_secrete_key  = config['CREDs']['minio_secrete_key']
+            self.minio_username   = config['CREDs']['minio_username']
+            self.minio_password  = config['CREDs']['minio_password']
             self.minio_bucket       = config['CREDs']['minio_bucket']
             self.minio_input_folder = 'emission/' + self.date_today+'/'+self.input_file
             self.minio_output_folder= 'process_input/'+ self.program + '/' + self.date_today
 
             #__________________ Minio Bucket Connection_________________
             try:
-                self.minio_client = Minio(endpoint=self.minio_endpoint+':'+self.minio_port,access_key=self.minio_access_key,secret_key=self.minio_secrete_key,secure=False)  # set this to True if your Minio instance is secured with SSL/TLS
+                self.minio_client = Minio(endpoint=self.minio_endpoint+':'+self.minio_port,access_key=self.minio_username,secret_key=self.minio_password,secure=False)  # set this to True if your Minio instance is secured with SSL/TLS
                 self.minio_object_list=self.minio_client.list_objects(self.minio_bucket, prefix=self.minio_input_folder, recursive=True)
             except Exception:
                 print(f'Error: Failed to connect to {self.minio_bucket} bucket')

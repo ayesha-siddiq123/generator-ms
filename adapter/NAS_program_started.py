@@ -10,11 +10,5 @@ def program_status():
     df_snap.columns = ['state_id','started']
     obj.upload_file(df_snap, 'programstarted-event.data.csv')
 
-def state_dimension():
-    df_snap=df_data[['State Code','State','Latitude','Longitude']]
-    df_snap.columns=['state_id','state_name','latitude','longitude']
-    obj.upload_file(df_snap,'state-dimension.data.csv')
-
 if df_data is not None:
     program_status()
-    state_dimension()

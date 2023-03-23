@@ -14,7 +14,6 @@ def category_event_data():
     obj.upload_file(df_snap, 'performancecategory-event.data.csv')
     return df_snap
 
-
 def category_dimenstion_data():
     df_data=category_event_data()
     df_data=df_data[['category_name']].drop_duplicates()

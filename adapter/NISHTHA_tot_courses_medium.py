@@ -2,7 +2,7 @@ from main import CollectData
 
 obj=CollectData()
 program=obj.program
-df_data=obj.column_rename()
+df_data=obj.get_file()
 
 def totalmedium_event_data():
     df_snap = df_data[['State Code','Program Name','Total Medium']]

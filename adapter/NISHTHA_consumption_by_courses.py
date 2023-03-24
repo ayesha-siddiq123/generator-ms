@@ -26,8 +26,14 @@ def course_dimension():
     df_snap.columns = ['course_id', 'course_id']
     obj.upload_file(df_snap, 'coursenishtha-dimension.data.csv')
 
+def state_dimension():
+    df_snap=df_data[['State Code','State Name','Latitude','Longitude']]
+    df_snap.columns=['state_id','state_name','latitude','longitude']
+    obj.upload_file(df_snap,'state-dimension.data.csv')
+
 if df_data is not None:
     totalenrolment_event_data()
     totalcompletion_event_data()
     totalcertification_event_data()
     course_dimension()
+    state_dimension()

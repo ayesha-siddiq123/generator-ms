@@ -1,5 +1,4 @@
 from main import CollectData
-import re
 
 obj=CollectData()
 program=obj.program
